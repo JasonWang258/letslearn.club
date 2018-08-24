@@ -12,12 +12,13 @@ Vue.config.productionTip = false
 
 // handle page reloads
 let app
+let usersUnsubscribe = () => {}
 firebaseApp.auth.onAuthStateChanged(user => {
   console.log(user)
   if (user) {
     store.commit('users/setCurrentUser', user)
     store.dispatch('users/fetchUserProfile')
-    firebaseApp.usersCollection.doc(user.uid).onSnapshot(doc => {
+    usersUnsubscribe = firebaseApp.usersCollection.doc(user.uid).onSnapshot(doc => {
       store.commit('users/setUserProfile', doc.data())
     })
     // realtime updates from our posts collection
@@ -43,6 +44,8 @@ firebaseApp.auth.onAuthStateChanged(user => {
         store.commit('blog/setPosts', postsArray)
       }
     })
+  } else {
+    usersUnsubscribe()
   }
   if (!app) {
     app = new Vue({

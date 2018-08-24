@@ -35,7 +35,7 @@
       <v-btn icon @click.stop="miniVariant = !miniVariant" v-show="drawer">
         <v-icon v-text="miniVariant ? 'chevron_right' : 'chevron_left'"></v-icon>
       </v-btn>
-      <v-toolbar-title v-text="title"></v-toolbar-title>
+      <v-toolbar-title><span @click="$router.push('/')" v-text="title" style="cursor: pointer;"></span></v-toolbar-title>
       <v-spacer></v-spacer>
       <v-btn icon @click.stop="toggleDarkTheme">
         <v-tooltip bottom>
@@ -146,7 +146,7 @@ export default {
         this.$store.dispatch('users/clearData')
         this.$router.push('/user/login')
       } catch (error) {
-        console.log(error)
+        console.log('signout:', error)
       }
     }
   },

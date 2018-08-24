@@ -46,7 +46,7 @@ var router = new Router({
           component: () => import(/* webpackChunkName: "user" */ '@/views/Setting.vue'),
           meta: {
             requiresAuth: true,
-            roles: ['admin', 'user']
+            roles: ['boss', 'user']
           }
         },
         {
@@ -82,13 +82,13 @@ var router = new Router({
 router.beforeEach((to, from, next) => {
   let currentUser = firebase.auth().currentUser
   const requiresAuth = to.matched.some(x => x.meta.requiresAuth)
-  // const guestOnly = to.meta.roles === 'guestOnly'
+  const guestOnly = to.meta.roles === 'guestOnly'
   if (requiresAuth && !currentUser) {
     next('/user/login')
   } else if (requiresAuth && currentUser) {
     next()
-  // } else if (guestOnly && currentUser) {
-  //   next('/user/setting')
+  } else if (guestOnly && currentUser) {
+    next('/user/setting')
   } else {
     next()
   }

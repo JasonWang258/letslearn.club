@@ -19,6 +19,7 @@ import {
   VCheckbox,
   VProgressCircular,
   VSnackbar,
+  VExpansionPanel,
   transitions
 } from 'vuetify'
 import 'vuetify/src/stylus/app.styl'
@@ -43,6 +44,7 @@ Vue.use(Vuetify, {
     VCheckbox,
     VProgressCircular,
     VSnackbar,
+    VExpansionPanel,
     transitions
   },
   theme: {
