@@ -20,7 +20,7 @@
               v-for="(item,i) in userProfile"
               :key="i"
             >
-              <v-layout 
+              <v-layout
               row
               align-center
               slot="header">
@@ -43,8 +43,8 @@
 </template>
 
 <script>
-import firebase from 'firebase/app'
-import { auth } from '@/firebaseConfig'
+// import firebase from 'firebase/app'
+// import { auth } from '@/firebaseConfig'
 import { mapState, mapMutations, mapActions } from 'vuex'
 export default {
   data () {

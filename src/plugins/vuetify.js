@@ -20,6 +20,8 @@ import {
   VProgressCircular,
   VSnackbar,
   VExpansionPanel,
+  VSelect,
+  VChip,
   transitions
 } from 'vuetify'
 import 'vuetify/src/stylus/app.styl'
@@ -45,6 +47,8 @@ Vue.use(Vuetify, {
     VProgressCircular,
     VSnackbar,
     VExpansionPanel,
+    VSelect,
+    VChip,
     transitions
   },
   theme: {

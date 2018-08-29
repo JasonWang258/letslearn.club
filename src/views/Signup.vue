@@ -169,17 +169,16 @@ export default {
       this.performingRequest = true
       try {
         await auth.setPersistence(this.persistenceType)
-        let user = await auth.createUserWithEmailAndPassword(this.email, this.password)
+        let result = await auth.createUserWithEmailAndPassword(this.email, this.password)
         // this.$store.commit('users/setCurrentUser', user)
-        console.log(user.user.uid)
-        this.setCurrentUser(user.user)
-        await user.updateProfile({
-          displayName: this.Nickname || 'guest_' + user.user.uid.slice(-5)
+        this.setCurrentUser(result.user)
+        await result.user.updateProfile({
+          displayName: this.Nickname || 'guest_' + result.user.uid.slice(-5)
         })
         // create user obj
-        await usersCollection.doc(user.user.uid).set({
-          nickname: this.Nickname || 'guest_' + user.user.uid.slice(-5),
-          roles: ['guest']
+        await usersCollection.doc(result.user.uid).set({
+          nickname: this.Nickname || 'guest_' + result.user.uid.slice(-5),
+          roles: { user: false }
         })
         this.fetchUserProfile()
         this.performingRequest = false
