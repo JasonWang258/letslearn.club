@@ -16,6 +16,14 @@ module.exports = {
           'preventFullImport': true
         }
       }
+    ],
+    [
+      'prismjs', {
+        'languages': ['javascript', 'css', 'python'],
+        'plugins': ['line-numbers'],
+        'theme': 'okaidia',
+        'css': true
+      }
     ]
   ]
 }

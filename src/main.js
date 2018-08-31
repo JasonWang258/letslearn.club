@@ -7,6 +7,7 @@ import store from './store'
 import './registerServiceWorker'
 import * as firebaseApp from './firebaseConfig'
 import '@mdi/font/css/materialdesignicons.min.css'
+import '@fortawesome/fontawesome-free/css/all.css'
 
 Vue.config.productionTip = false
 
