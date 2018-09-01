@@ -179,8 +179,8 @@ export default {
   data () {
     return {
       usePhoneMethod: true,
-      username: 'jasonwang31258@gmail.com',
-      password: '123456',
+      username: '',
+      password: '',
       rememberMe: false,
       showPassword: true,
       performingRequest: false,

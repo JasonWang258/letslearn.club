@@ -22,6 +22,11 @@ export default {
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style lang="scss" scoped>
 .bg-container {
+  padding: 0;
+  margin: 0;
+  .container {
+    padding: 0;
+  }
   &:before {
     content: '';
     display: block;

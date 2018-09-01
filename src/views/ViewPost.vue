@@ -63,7 +63,7 @@ import { mapState } from 'vuex'
 import 'medium-editor/dist/css/medium-editor.min.css'
 import 'medium-editor/dist/css/themes/tim.min.css'
 import extensions from '@/plugins/mediumEditor/extension'
-import Prism from 'prismjs'
+// import Prism from 'prismjs'
 import 'prismjs/themes/prism-okaidia.css'
 export default {
   name: 'ViewPost',
@@ -74,7 +74,7 @@ export default {
     return {
       allowEdit: true,
       mediumEditorApi: null,
-      lorem: '<pre><code class="language-css">section h1 { font-size: 250%; }</code></pre>',
+      lorem: 'section h1 { font-size: 250%; }',
       editorOptions: {
         buttonLabels: 'fontawesome',
         toolbar: {
@@ -114,11 +114,13 @@ export default {
               contentFA: '<i class="fa fa-heading"><sup>3</sup></i>'
             },
             'quote',
-            'highlighter'
+            'highlighter',
+            'code'
           ]
         },
         extensions: {
-          'highlighter': new extensions.HighlighterButton()
+          'highlighter': new extensions.HighlighterButton(),
+          'code': new extensions.CodeForm()
         }
       }
     }

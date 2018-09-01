@@ -33,7 +33,7 @@ var CodeForm = MediumEditor.extensions.form.extend({
   action: 'formatCode',
   aria: 'code syntax highlighter',
   tagNames: ['pre', 'code'],
-  contentDefault: '<b>Code</>',
+  contentDefault: '<b>Code</b>',
   contentFA: '<i class="fa fa-code"></i>',
   placeholderText: 'Choose Code Language',
   init: function () {
@@ -54,6 +54,9 @@ var CodeForm = MediumEditor.extensions.form.extend({
     }
     return false
   },
+  removeFormat: function (e) {
+    console.log('removeFormat', e)
+  },
   // Called when user hits the defined shortcut (CTRL / COMMAND + L)
   handleKeydown: function (event) {
     let L = 76
@@ -69,9 +72,15 @@ var CodeForm = MediumEditor.extensions.form.extend({
   },
   getTemplate: function () {
     var template = [
-      '<input type="text" class="medium-editor-toolbar-input" placeholder="', this.placeholderText, '">'
+      '<input type="text" class="medium-editor-toolbar-input" list="languages" placeholder="', this.placeholderText, '">'
     ]
-
+    template.push(
+      '<datalist id="languages">',
+      '<option value="javascript">',
+      '<option value="css">',
+      '<option value="python">',
+      '</datalist>'
+    )
     template.push(
       '<a href="#" class="medium-editor-toolbar-save">',
       this.getEditorOption('buttonLabels') === 'fontawesome' ? '<i class="fa fa-check"></i>' : this.formSaveLabel,
@@ -111,14 +120,7 @@ var CodeForm = MediumEditor.extensions.form.extend({
 
     input.value = opts.value
     input.focus()
-
-            // If we have a custom class checkbox, we want it to be checked/unchecked
-            // based on whether an existing link already has the class
-            if (buttonCheckbox) {
-                var classList = opts.buttonClass ? opts.buttonClass.split(' ') : [];
-                buttonCheckbox.checked = (classList.indexOf(this.customClassOption) !== -1);
-            }
-        },
+  },
 
   // Called by core when tearing down medium-editor (destroy)
   destroy: function () {
@@ -160,22 +162,22 @@ var CodeForm = MediumEditor.extensions.form.extend({
   },
 
   doFormSave: function () {
-    var opts = this.getFormOpts();
-    this.completeFormSave(opts);
+    var opts = this.getFormOpts()
+    this.completeFormSave(opts)
   },
 
   completeFormSave: function (opts) {
-    this.base.restoreSelection();
-    this.execAction(this.action, opts);
-    this.base.checkSelection();
+    this.base.restoreSelection()
+    this.execAction(this.action, opts)
+    this.base.checkSelection()
   },
 
   ensureEncodedUri: function (str) {
-    return str === decodeURI(str) ? encodeURI(str) : str;
+    return str === decodeURI(str) ? encodeURI(str) : str
   },
 
   ensureEncodedUriComponent: function (str) {
-    return str === decodeURIComponent(str) ? encodeURIComponent(str) : str;
+    return str === decodeURIComponent(str) ? encodeURIComponent(str) : str
   },
 
   ensureEncodedParam: function (param) {
@@ -187,106 +189,76 @@ var CodeForm = MediumEditor.extensions.form.extend({
   },
 
   ensureEncodedQuery: function (queryString) {
-    return queryString.split('&').map(this.ensureEncodedParam.bind(this)).join('&');
+    return queryString.split('&').map(this.ensureEncodedParam.bind(this)).join('&')
   },
 
-        checkLinkFormat: function (value) {
-            // Matches any alphabetical characters followed by ://
-            // Matches protocol relative "//"
-            // Matches common external protocols "mailto:" "tel:" "maps:"
-            // Matches relative hash link, begins with "#"
-            var urlSchemeRegex = /^([a-z]+:)?\/\/|^(mailto|tel|maps):|^\#/i,
-                hasScheme = urlSchemeRegex.test(value),
-                scheme = '',
-                // telRegex is a regex for checking if the string is a telephone number
-                telRegex = /^\+?\s?\(?(?:\d\s?\-?\)?){3,20}$/,
-                urlParts = value.match(/^(.*?)(?:\?(.*?))?(?:#(.*))?$/),
-                path = urlParts[1],
-                query = urlParts[2],
-                fragment = urlParts[3];
-
-            if (telRegex.test(value)) {
-                return 'tel:' + value;
-            }
-
-            if (!hasScheme) {
-                var host = path.split('/')[0];
-                // if the host part of the path looks like a hostname
-                if (host.match(/.+(\.|:).+/) || host === 'localhost') {
-                    scheme = 'http://';
-                }
-            }
-
-            return scheme +
-                // Ensure path is encoded
-                this.ensureEncodedUri(path) +
-                // Ensure query is encoded
-                (query === undefined ? '' : '?' + this.ensureEncodedQuery(query)) +
-                // Include fragment unencoded as encodeUriComponent is too
-                // heavy handed for the many characters allowed in a fragment
-                (fragment === undefined ? '' : '#' + fragment);
-        },
+  getOriginalHtml: function (value) {
+    // Matches commented original HTML code
+    var originalHtmlRegex = /^.*$/i
+    var originalHtml = ''
+    console.log(originalHtmlRegex)
+    return originalHtml
+  },
 
   doFormCancel: function () {
-    this.base.restoreSelection();
-    this.base.checkSelection();
+    this.base.restoreSelection()
+    this.base.checkSelection()
   },
 
   // form creation and event handling
   attachFormEvents: function (form) {
-    var close = form.querySelector('.medium-editor-toolbar-close'),
-        save = form.querySelector('.medium-editor-toolbar-save'),
-        input = form.querySelector('.medium-editor-toolbar-input');
+    var close = form.querySelector('.medium-editor-toolbar-close')
+    var save = form.querySelector('.medium-editor-toolbar-save')
+    var input = form.querySelector('.medium-editor-toolbar-input')
 
     // Handle clicks on the form itself
-    this.on(form, 'click', this.handleFormClick.bind(this));
+    this.on(form, 'click', this.handleFormClick.bind(this))
 
     // Handle typing in the textbox
-    this.on(input, 'keyup', this.handleTextboxKeyup.bind(this));
+    this.on(input, 'keyup', this.handleTextboxKeyup.bind(this))
 
     // Handle close button clicks
-    this.on(close, 'click', this.handleCloseClick.bind(this));
+    this.on(close, 'click', this.handleCloseClick.bind(this))
 
     // Handle save button clicks (capture)
-    this.on(save, 'click', this.handleSaveClick.bind(this), true);
-
+    this.on(save, 'click', this.handleSaveClick.bind(this), true)
   },
 
   createForm: function () {
-    var doc = this.document,
-        form = doc.createElement('div');
+    var doc = this.document
+    var form = doc.createElement('div')
 
-    // Anchor Form (div)
-    form.className = 'medium-editor-toolbar-form';
-    form.id = 'medium-editor-toolbar-form-anchor-' + this.getEditorId();
-    form.innerHTML = this.getTemplate();
-    this.attachFormEvents(form);
+    // code Form (div)
+    form.className = 'medium-editor-toolbar-form'
+    form.id = 'medium-editor-toolbar-form-code-' + this.getEditorId()
+    form.innerHTML = this.getTemplate()
+    this.attachFormEvents(form)
 
-    return form;
+    return form
   },
 
   getInput: function () {
-    return this.getForm().querySelector('input.medium-editor-toolbar-input');
+    return this.getForm().querySelector('input.medium-editor-toolbar-input')
   },
 
   handleTextboxKeyup: function (event) {
-    // For ENTER -> create the anchor
+    // For ENTER -> format the code
     if (event.keyCode === MediumEditor.util.keyCode.ENTER) {
-        event.preventDefault();
-        this.doFormSave();
-        return;
+      event.preventDefault()
+      this.doFormSave()
+      return
     }
 
     // For ESCAPE -> close the form
     if (event.keyCode === MediumEditor.util.keyCode.ESCAPE) {
-        event.preventDefault();
-        this.doFormCancel();
+      event.preventDefault()
+      this.doFormCancel()
     }
   },
 
   handleFormClick: function (event) {
-      // make sure not to hide form when clicking inside the form
-      event.stopPropagation();
+    // make sure not to hide form when clicking inside the form
+    event.stopPropagation()
   },
 
   handleSaveClick: function (event) {
