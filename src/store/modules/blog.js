@@ -1,8 +1,10 @@
-// import { postsCollection } from '@/firebaseConfig'
+// import firebase from 'firebase/app'
+import { postsCollection } from '@/firebaseConfig'
 
 const state = {
   posts: [],
-  hiddenPosts: []
+  hiddenPosts: [],
+  comments: []
 }
 
 const getters = {
@@ -30,7 +32,15 @@ const mutations = {
 }
 
 const actions = {
-
+  async createPost ({ commit, state, rootState }, data) {
+    console.log(rootState.isDarkTheme)
+    let post = await postsCollection.doc().set({
+      content: data.content,
+      uid: data.uid,
+      likes: []
+    })
+    console.log(post)
+  }
 }
 
 export default {

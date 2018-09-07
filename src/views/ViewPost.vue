@@ -2,6 +2,7 @@
   <v-container>
     <v-layout>
       <v-flex>
+        <div>post {{ post_id }}</div>
         <v-card raised class="pa-4 mt-2 post-view">
           <v-fab-transition>
             <v-btn
@@ -37,12 +38,12 @@
                       <v-divider light inset></v-divider>
                       <v-card-text>
                         <medium-editor
-                        v-if="allowEdit"
+                        v-show="allowEdit"
                         :text="lorem"
                         :options="editorOptions"
                         @editorCreated="getMediumEditor"></medium-editor>
                         <div
-                          v-else
+                          v-show="!allowEdit"
                           v-html="lorem"
                         ></div>
                       </v-card-text>
@@ -59,7 +60,7 @@
 
 <script>
 import editor from 'vue2-medium-editor'
-import { mapState } from 'vuex'
+import { mapState, mapGetters } from 'vuex'
 import 'medium-editor/dist/css/medium-editor.min.css'
 import 'medium-editor/dist/css/themes/tim.min.css'
 import extensions from '@/plugins/mediumEditor/extension'
@@ -70,11 +71,12 @@ export default {
   components: {
     'medium-editor': editor
   },
+  props: ['post_id'],
   data () {
     return {
       allowEdit: true,
       mediumEditorApi: null,
-      lorem: 'section h1 { font-size: 250%; }',
+      lorem: 'var i = 5;',
       editorOptions: {
         buttonLabels: 'fontawesome',
         toolbar: {
@@ -91,7 +93,6 @@ export default {
               contentDefault: '<b>image</b>',
               contentFA: '<i class="fa fa-image"></i>'
             },
-            'pre',
             'orderedlist',
             'unorderedlist',
             'justifyLeft',
@@ -126,15 +127,20 @@ export default {
     }
   },
   computed: {
-    ...mapState([
-      'isDarkTheme'
-    ]),
+    ...mapState({
+      isDarkTheme: state => state.isDarkTheme,
+      currentUser: state => state.users.currentUser,
+      userProfile: state => state.users.userProfile
+    }),
+    ...mapGetters({
+      currentUserz: 'users/currentUserz'
+    }),
     activeFab () {
       return this.allowEdit ? { 'color': 'pink', icon: 'save' } : { 'color': 'indigo', icon: 'edit' }
     }
   },
   mounted () {
-    Prism.highlightAll()
+    console.log(this.post_id)
   },
   methods: {
     editPost () {
@@ -142,11 +148,24 @@ export default {
       if (this.allowEdit) {
         let htmlContent = this.mediumEditorApi.getContent(0)
         this.lorem = htmlContent
+        this.$store.dispatch('blog/createPost', {
+          content: htmlContent,
+          uid: this.currentUserz.uid
+        })
       }
       this.allowEdit = !this.allowEdit
     },
     getMediumEditor (api) {
       this.mediumEditorApi = api
+    },
+    createNewPost () {
+      console.log('create new post')
+    },
+    getPost () {
+      console.log('get post')
+    },
+    getComments () {
+      console.log('get Comments')
     }
   }
 }
@@ -156,5 +175,9 @@ export default {
 <style>
 .post-view {
   font-size: 1.5em;
+}
+code:after, kbd:after, code:before, kbd:before {
+  content: "";
+  letter-spacing: -1px;
 }
 </style>

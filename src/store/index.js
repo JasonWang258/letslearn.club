@@ -9,7 +9,9 @@ Vue.use(Vuex)
 
 const store = new Vuex.Store({
   state: {
-    isDarkTheme: false
+    isDarkTheme: false,
+    errorMsg: '',
+    showMessage: false
   },
   mutations: mutations,
   actions: actions,

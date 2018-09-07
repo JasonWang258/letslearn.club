@@ -185,8 +185,8 @@ export default {
       showPassword: true,
       performingRequest: false,
       performingRequestSendCode: false,
-      showMessage: false,
-      errorMsg: '',
+      // showMessage: false,
+      // errorMsg: '',
       confirmationResult: null,
       countryCode: {
         name: 'Canada',
@@ -241,7 +241,23 @@ export default {
     },
     ...mapState([
       'isDarkTheme'
-    ])
+    ]),
+    showMessage: {
+      get () {
+        return this.$store.state.showMessage
+      },
+      set (value) {
+        this.$store.commit('setShowMessage', value)
+      }
+    },
+    errorMsg: {
+      get () {
+        return this.$store.state.errorMsg
+      },
+      set (value) {
+        this.$store.commit('setErrorMsg', value)
+      }
+    }
   },
   mounted () {
     this.recaptchaVerifier = new firebase.auth.RecaptchaVerifier('smsBtn', {
@@ -290,6 +306,8 @@ export default {
       try {
         await auth.setPersistence(this.persistenceType)
         let result = await this.confirmationResult.confirm(this.password)
+        console.log(this.$store.users.currentUserz)
+        console.log(result.user)
         this.setCurrentUser(result.user)
         if (!result.user.displayName) {
           await result.user.updateProfile({
@@ -318,6 +336,8 @@ export default {
       try {
         await auth.setPersistence(this.persistenceType)
         let result = await auth.signInWithEmailAndPassword(this.username, this.password)
+        console.log(this.$store.users.currentUserz)
+        console.log(result.user)
         this.setCurrentUser(result.user)
         this.fetchUserProfile()
         this.$router.push('/user/setting')

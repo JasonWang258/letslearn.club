@@ -35,27 +35,40 @@ var CodeForm = MediumEditor.extensions.form.extend({
   tagNames: ['pre', 'code'],
   contentDefault: '<b>Code</b>',
   contentFA: '<i class="fa fa-code"></i>',
-  placeholderText: 'Choose Code Language',
+  placeholderText: 'javascript',
+  currentLanguage: 'javascript',
   init: function () {
     MediumEditor.extensions.form.prototype.init.apply(this, arguments)
+    this.classApplierCode = rangy.createClassApplier('language-javascript', {
+      elementTagName: 'code',
+      mormalize: true
+    })
+    this.classApplierPre = rangy.createClassApplier('language-javascript', {
+      elementTagName: 'pre',
+      mormalize: true
+    })
     this.subscribe('editableKeydown', this.handleKeydown.bind(this))
   },
   handleClick: function (event) {
     event.preventDefault()
     event.stopPropagation()
     var range = MediumEditor.selection.getSelectionRange(this.document)
-    if (range.startContainer.nodeName.toLowerCase() === 'pre' ||
-      range.endContainer.nodeName.toLowerCase() === 'pre' ||
-      MediumEditor.util.getClosestTag(MediumEditor.selection.getSelectedParentElement(range), 'pre')) {
-      return this.removeFormat()
+    let preHtml = MediumEditor.util.getClosestTag(MediumEditor.selection.getSelectedParentElement(range), 'pre')
+    if (preHtml) {
+      return this.removeFormat(preHtml.innerText)
     }
     if (!this.isDisplayed()) {
       this.showForm()
     }
     return false
   },
-  removeFormat: function (e) {
-    console.log('removeFormat', e)
+  removeFormat: function (codeText) {
+    this.classApplierCode.toggleSelection()
+    this.classApplierPre.toggleSelection()
+    this.base.pasteHTML(codeText)
+    this.base.restoreSelection()
+    this.base.checkSelection()
+    this.base.checkContentChanged()
   },
   // Called when user hits the defined shortcut (CTRL / COMMAND + L)
   handleKeydown: function (event) {
@@ -139,65 +152,49 @@ var CodeForm = MediumEditor.extensions.form.extend({
 
   getFormOpts: function () {
     // no notion of private functions? wanted `_getFormOpts`
-    var targetCheckbox = this.getAnchorTargetCheckbox()
-    var buttonCheckbox = this.getAnchorButtonCheckbox()
+    let inputValue = this.getInput().value.trim()
     var opts = {
-      value: this.getInput().value.trim()
+      value: inputValue || 'javascript'
     }
-
-    if (this.linkValidation) {
-      opts.value = this.checkLinkFormat(opts.value)
-    }
-
-    opts.target = '_self'
-    if (targetCheckbox && targetCheckbox.checked) {
-      opts.target = '_blank'
-    }
-
-    if (buttonCheckbox && buttonCheckbox.checked) {
-      opts.buttonClass = this.customClassOption
-    }
-
     return opts
   },
 
   doFormSave: function () {
     var opts = this.getFormOpts()
+    if (this.currentLanguage !== opts.value) {
+      this.classApplierCode = rangy.createClassApplier('language-' + opts.value, {
+        elementTagName: 'code',
+        mormalize: true
+      })
+      this.classApplierPre = rangy.createClassApplier('language-' + opts.value, {
+        elementTagName: 'pre',
+        mormalize: true
+      })
+      this.currentLanguage = opts.value
+    }
     this.completeFormSave(opts)
   },
 
   completeFormSave: function (opts) {
     this.base.restoreSelection()
-    this.execAction(this.action, opts)
+    let range = MediumEditor.selection.getSelectionRange(this.document)
+    let rangeData = range.commonAncestorContainer.innerText || range.commonAncestorContainer.textContent
+    range.deleteContents()
+    let htmlCode = Prism.highlight(rangeData, Prism.languages[opts.value], opts.value)
+    htmlCode = '<pre class="language-' + opts.value + '"><code class="language-' + opts.value + '">' + htmlCode + '</code></pre>'
+    let fragment
+    if (range.createContextualFragment) {
+      fragment = range.createContextualFragment(htmlCode)
+    } else {
+      var div = document.createElement('div')
+      div.innerHTML = htmlCode
+      fragment = document.createDocumentFragment()
+      fragment.appendChild(div.firstChild)
+    }
+    range.insertNode(fragment)
+    this.base.restoreSelection()
     this.base.checkSelection()
-  },
-
-  ensureEncodedUri: function (str) {
-    return str === decodeURI(str) ? encodeURI(str) : str
-  },
-
-  ensureEncodedUriComponent: function (str) {
-    return str === decodeURIComponent(str) ? encodeURIComponent(str) : str
-  },
-
-  ensureEncodedParam: function (param) {
-    var split = param.split('=')
-    var key = split[0]
-    var val = split[1]
-
-    return key + (val === undefined ? '' : '=' + this.ensureEncodedUriComponent(val))
-  },
-
-  ensureEncodedQuery: function (queryString) {
-    return queryString.split('&').map(this.ensureEncodedParam.bind(this)).join('&')
-  },
-
-  getOriginalHtml: function (value) {
-    // Matches commented original HTML code
-    var originalHtmlRegex = /^.*$/i
-    var originalHtml = ''
-    console.log(originalHtmlRegex)
-    return originalHtml
+    this.base.checkContentChanged()
   },
 
   doFormCancel: function () {
@@ -262,7 +259,7 @@ var CodeForm = MediumEditor.extensions.form.extend({
   },
 
   handleSaveClick: function (event) {
-    // Clicking Save -> create the anchor
+    // Clicking Save -> create the code highlight
     event.preventDefault()
     this.doFormSave()
   },

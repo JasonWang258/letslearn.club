@@ -34,7 +34,8 @@ var router = new Router({
     {
       path: '/p/:post_id',
       name: 'post_view',
-      component: () => import(/* webpackChunkName: "resume" */ '@/views/ViewPost.vue')
+      component: () => import(/* webpackChunkName: "resume" */ '@/views/ViewPost.vue'),
+      props: true
     },
     {
       path: '/user',
