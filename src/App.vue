@@ -37,6 +37,14 @@
       </v-btn>
       <v-toolbar-title><span @click="$router.push('/')" v-text="title" style="cursor: pointer;"></span></v-toolbar-title>
       <v-spacer></v-spacer>
+      <v-btn icon @click.stop="toggleLocale">
+        <v-tooltip bottom>
+          <v-icon
+            slot="activator"
+          >mdi-web</v-icon>
+          <span>Toggle Laguange</span>
+        </v-tooltip>
+      </v-btn>
       <v-btn icon @click.stop="toggleDarkTheme">
         <v-tooltip bottom>
           <v-icon
@@ -140,6 +148,11 @@ export default {
     ...mapMutations([
       'toggleDarkTheme'
     ]),
+    toggleLocale () {
+      console.log('language')
+      // this.$vuetify.lang.current = this.$vuetify.lang.current === 'en' ? 'zhHans' : 'en'
+      this.$i18n.locale = this.$i18n.locale === 'en' ? 'zhHans' : 'en'
+    },
     async logout () {
       try {
         await auth.signOut()

@@ -2,7 +2,7 @@
   <v-container>
     <v-layout>
       <v-flex>
-        <div>post {{ post_id }}</div>
+        <div> post {{ post_id }}</div>
         <v-card raised class="pa-4 mt-2 post-view">
           <v-fab-transition>
             <v-btn
@@ -30,24 +30,80 @@
                               <v-avatar size="48px" color="orange">
                                 <v-icon>business</v-icon>
                               </v-avatar>
-                              <span class="ml-4">Title</span>
+                              <span class="ml-4" v-text="currentPost.subject"></span>
                             </div>
                           </v-card-title>
+                        </v-flex>
+                      </v-layout>
+                      <v-layout class="ml-5 pl-5" row wrap justify-space-between>
+                        <v-flex d-flex>
+                          <span v-text="'Author: ' + currentPost.authorNickname"></span>
+                        </v-flex>
+                        <v-flex d-flex xs12 sm2 v-if="!isNewPost">
+                          <v-layout row justify-end>
+                            <v-badge color="red" overlap>
+                              <span slot="badge">6</span>
+                              <v-btn icon>
+                                <v-icon large>favorite</v-icon>
+                              </v-btn>
+                            </v-badge>
+                            <v-btn icon>
+                              <v-icon large>bookmark</v-icon>
+                            </v-btn>
+                            <v-btn icon>
+                              <v-icon large>share</v-icon>
+                            </v-btn>
+                          </v-layout>
                         </v-flex>
                       </v-layout>
                       <v-divider light inset></v-divider>
                       <v-card-text>
                         <medium-editor
                         v-show="allowEdit"
-                        :text="lorem"
+                        :text="currentPost.content"
                         :options="editorOptions"
                         @editorCreated="getMediumEditor"></medium-editor>
                         <div
                           v-show="!allowEdit"
-                          v-html="lorem"
+                          v-html="currentPost.content"
                         ></div>
                       </v-card-text>
                     </v-card>
+                  </v-flex>
+                  <v-flex v-if="!isNewPost">
+                    <span v-html="$t('message.commentsHeader', { qty: commentsQty })">Comments (x)</span>
+                    <v-divider class="mb-3"></v-divider>
+                    <v-textarea
+                      v-model="comment"
+                      auto-grow
+                      box
+                      label="leave your comment here"
+                      rows="1"
+                    ></v-textarea>
+                    <div class="right" style="margin-top: -20px;">
+                      <v-btn small>submit</v-btn>
+                    </div>
+                    <v-divider class="mt-4"></v-divider>
+                    <v-list two-line>
+                      <template v-for="(item, index) in comments">
+                        <v-list-tile
+                          :key="index"
+                          avatar
+                        >
+                          <v-list-tile-avatar>
+                            <img :src="item.fromAvator">
+                          </v-list-tile-avatar>
+
+                          <v-list-tile-content>
+                            <v-list-tile-title v-text="item.fromNickname"></v-list-tile-title>
+                            <v-list-tile-sub-title v-text="item.content"></v-list-tile-sub-title>
+                          </v-list-tile-content>
+                          <v-list-tile-action>
+                            <v-icon color="pink">star</v-icon>
+                          </v-list-tile-action>
+                        </v-list-tile>
+                      </template>
+                    </v-list>
                   </v-flex>
                 </v-layout>
               </v-flex>
@@ -64,7 +120,6 @@ import { mapState, mapGetters } from 'vuex'
 import 'medium-editor/dist/css/medium-editor.min.css'
 import 'medium-editor/dist/css/themes/tim.min.css'
 import extensions from '@/plugins/mediumEditor/extension'
-// import Prism from 'prismjs'
 import 'prismjs/themes/prism-okaidia.css'
 export default {
   name: 'ViewPost',
@@ -74,9 +129,32 @@ export default {
   props: ['post_id'],
   data () {
     return {
+      currentPost: {
+        subject: '',
+        content: '',
+        authorUid: '',
+        authorNickname: '',
+        createdOn: null,
+        modifiedOn: null,
+        likes: []
+      },
+      comments: [{
+        postID: '',
+        content: 'test comment',
+        fromUid: 'DXcwDoaOgkWU86q8r8loVf4k5B02',
+        fromNickname: 'testUser',
+        fromAvator: 'dsf',
+        createdOn: '',
+        modifiedOn: '',
+        fromDevice: '',
+        atUid: '',
+        atNickname: '',
+        replyToID: null, // if null -> comment else -> reply
+        likes: []
+      }],
+      comment: '',
       allowEdit: true,
       mediumEditorApi: null,
-      lorem: 'var i = 5;',
       editorOptions: {
         buttonLabels: 'fontawesome',
         toolbar: {
@@ -135,23 +213,38 @@ export default {
     ...mapGetters({
       currentUserz: 'users/currentUserz'
     }),
+    isNewPost () {
+      return this.post_id === 'new'
+    },
+    commentsQty () {
+      return 4
+    },
     activeFab () {
       return this.allowEdit ? { 'color': 'pink', icon: 'save' } : { 'color': 'indigo', icon: 'edit' }
     }
   },
   mounted () {
-    console.log(this.post_id)
+    console.log(this.currentUserz)
+    if (isNewPost) {
+      return
+    }
+    // getPost(this.post_id)
+    // getComments(this.post_id)
   },
   methods: {
     editPost () {
-      console.log('edit')
       if (this.allowEdit) {
         let htmlContent = this.mediumEditorApi.getContent(0)
-        this.lorem = htmlContent
-        this.$store.dispatch('blog/createPost', {
-          content: htmlContent,
-          uid: this.currentUserz.uid
-        })
+        this.currentPost.content = htmlContent
+        if (isNewPost) {
+          this.$store.dispatch('blog/createPost', {
+            subject: this.currentPost.subject,
+            content: htmlContent,
+            uid: this.currentUserz.uid,
+            authorNickname: this.userProfile.nickname,
+            createdOn: new Date()
+          })
+        }
       }
       this.allowEdit = !this.allowEdit
     },

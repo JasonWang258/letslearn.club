@@ -1,4 +1,5 @@
 import Vue from 'vue'
+
 import {
   Vuetify,
   VApp,
@@ -16,16 +17,18 @@ import {
   VTooltip,
   VForm,
   VTextField,
+  VTextarea,
   VCheckbox,
   VProgressCircular,
   VSnackbar,
   VExpansionPanel,
   VSelect,
   VChip,
+  VBadge,
   transitions
 } from 'vuetify'
 import 'vuetify/src/stylus/app.styl'
-
+import i18n from '@/plugins/i18n'
 Vue.use(Vuetify, {
   components: {
     VApp,
@@ -43,12 +46,14 @@ Vue.use(Vuetify, {
     VTooltip,
     VForm,
     VTextField,
+    VTextarea,
     VCheckbox,
     VProgressCircular,
     VSnackbar,
     VExpansionPanel,
     VSelect,
     VChip,
+    VBadge,
     transitions
   },
   theme: {
@@ -59,5 +64,8 @@ Vue.use(Vuetify, {
     info: '#2196F3',
     success: '#4CAF50',
     warning: '#FFC107'
+  },
+  lang: {
+    t: (key, ...params) => i18n.t(key, params)
   }
 })

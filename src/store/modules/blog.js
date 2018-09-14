@@ -31,15 +31,53 @@ const mutations = {
   }
 }
 
+// -- posts --
+// subject
+// content
+// authorUid
+// authorNickname
+// createdOn
+// modifiedOn
+// likes
+
+// -- comments --
+// postID
+// content
+// fromUid
+// createdOn
+// modifiedOn
+// fromDevice
+// atUid
+// atNickname
+// replyToID // if null -> comment else -> reply
+// likes
+
+// -- users --
+// nickName
+// bookmarks
+// roles
+
 const actions = {
   async createPost ({ commit, state, rootState }, data) {
     console.log(rootState.isDarkTheme)
-    let post = await postsCollection.doc().set({
+    let post = await postsCollection.add({
+      subject: data.subject,
       content: data.content,
-      uid: data.uid,
+      authorUid: data.uid,
+      authorNickname: data.authorNickname,
+      createdOn: data.createdOn,
       likes: []
     })
     console.log(post)
+  },
+  async getPost ({ commit, state, rootState }, data) {
+    console.log(data)
+  },
+  async getPosts ({ commit, state, rootState }, data) {
+    console.log(data)
+  },
+  async getComments ({ commit, state, rootState }, data) {
+    console.log(data)
   }
 }
 

@@ -1,11 +1,12 @@
 import '@babel/polyfill'
 import Vue from 'vue'
-import './plugins/vuetify'
-import App from './App.vue'
-import router from './router'
-import store from './store'
-import './registerServiceWorker'
-import * as firebaseApp from './firebaseConfig'
+import i18n from '@/plugins/i18n'
+import '@/plugins/vuetify'
+import App from '@/App.vue'
+import router from '@/router'
+import store from '@/store'
+import '@/registerServiceWorker'
+import * as firebaseApp from '@/firebaseConfig'
 import '@mdi/font/css/materialdesignicons.min.css'
 import '@fortawesome/fontawesome-free/css/all.css'
 
@@ -27,7 +28,7 @@ firebaseApp.auth.onAuthStateChanged(user => {
       // check if created by currentUser
       let createdByCurrentUser
       if (querySnapshot.docs.length) {
-        createdByCurrentUser = store.state.currentUser.uid === querySnapshot.docChanges()[0].doc.data().userId
+        createdByCurrentUser = store.state.users.currentUser.uid === querySnapshot.docChanges()[0].doc.data().userId
       }
       // add new posts to hiddenPosts array after initial load
       if (querySnapshot.docChanges().length !== querySnapshot.docs.length &&
@@ -52,6 +53,7 @@ firebaseApp.auth.onAuthStateChanged(user => {
     app = new Vue({
       router,
       store,
+      i18n,
       render: h => h(App)
     }).$mount('#app')
   }
