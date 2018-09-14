@@ -223,9 +223,9 @@ export default {
       return this.allowEdit ? { 'color': 'pink', icon: 'save' } : { 'color': 'indigo', icon: 'edit' }
     }
   },
-  mounted () {
+  created () {
     console.log(this.currentUserz)
-    if (isNewPost) {
+    if (this.isNewPost) {
       return
     }
     // getPost(this.post_id)
@@ -236,7 +236,7 @@ export default {
       if (this.allowEdit) {
         let htmlContent = this.mediumEditorApi.getContent(0)
         this.currentPost.content = htmlContent
-        if (isNewPost) {
+        if (this.isNewPost) {
           this.$store.dispatch('blog/createPost', {
             subject: this.currentPost.subject,
             content: htmlContent,
