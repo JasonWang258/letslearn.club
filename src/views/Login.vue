@@ -162,8 +162,8 @@
             </div>
           </v-flex>
           <v-flex xs12 flexbox class="text-xs-center">
-            <v-btn flat color="blue-grey lighten-1"><v-icon left>mdi-google</v-icon>Google</v-btn>
-            <v-btn flat color="orange darken-3"><v-icon left>mdi-facebook</v-icon>Facebook</v-btn>
+            <v-btn flat color="blue-grey lighten-1" @click="loginViaGoogle"><v-icon left>mdi-google</v-icon>Google</v-btn>
+            <v-btn flat color="orange darken-3" @click="loginViaFacebook"><v-icon left>mdi-facebook</v-icon>Facebook</v-btn>
           </v-flex>
         </v-layout>
       </v-container>
@@ -178,7 +178,7 @@ import { mapState, mapMutations, mapActions } from 'vuex'
 export default {
   data () {
     return {
-      usePhoneMethod: true,
+      usePhoneMethod: navigator.userAgent.includes('Mobile'),
       username: '',
       password: '',
       rememberMe: false,
@@ -260,12 +260,6 @@ export default {
     }
   },
   mounted () {
-    this.recaptchaVerifier = new firebase.auth.RecaptchaVerifier('smsBtn', {
-      'size': 'invisible',
-      'callback': (response) => {
-        console.log('recaptcha:', response)
-      }
-    })
   },
   methods: {
     formSubmit () {
@@ -288,6 +282,12 @@ export default {
       }
       this.performingRequestSendCode = true
       try {
+        this.recaptchaVerifier = new firebase.auth.RecaptchaVerifier('smsBtn', {
+          'size': 'invisible',
+          'callback': (response) => {
+            console.log('recaptcha:', response)
+          }
+        })
         let confirmationResult = await auth.signInWithPhoneNumber(this.phoneNumber, this.recaptchaVerifier)
         this.confirmationResult = confirmationResult
         this.performingRequestSendCode = false
@@ -298,7 +298,7 @@ export default {
         console.log(err)
       }
     },
-    async loginWithPhone () {
+    async loginViaPhone () {
       if (!this.$refs.form.validate()) {
         return false
       }
@@ -306,7 +306,6 @@ export default {
       try {
         await auth.setPersistence(this.persistenceType)
         let result = await this.confirmationResult.confirm(this.password)
-        console.log(this.$store.users.currentUserz)
         console.log(result.user)
         this.setCurrentUser(result.user)
         if (!result.user.displayName) {
@@ -328,7 +327,7 @@ export default {
         this.showMessage = true
       }
     },
-    async loginWithEmail () {
+    async loginViaEmail () {
       if (!this.$refs.form.validate()) {
         return false
       }
@@ -336,7 +335,6 @@ export default {
       try {
         await auth.setPersistence(this.persistenceType)
         let result = await auth.signInWithEmailAndPassword(this.username, this.password)
-        console.log(this.$store.users.currentUserz)
         console.log(result.user)
         this.setCurrentUser(result.user)
         this.fetchUserProfile()
@@ -348,12 +346,30 @@ export default {
         this.showMessage = true
       }
     },
+    async loginViaGoogle () {
+      try {
+        var googleProvider = new firebase.auth.GoogleAuthProvider()
+        await auth.setPersistence(this.persistenceType)
+        let result = await auth.signInWithPopup(googleProvider)
+        console.log(result.user)
+        this.setCurrentUser(result.user)
+        this.fetchUserProfile()
+        this.$router.push('/user/setting')
+      } catch (err) {
+        this.errorMsg = err.message
+        this.showMessage = true
+      }
+    },
+    async loginViaFacebook () {
+      
+    },
     login () {
       if (this.usePhoneMethod) {
-        this.loginWithPhone()
+        this.loginViaPhone()
       } else {
-        this.loginWithEmail()
+        this.loginViaEmail()
       }
+      // go back to saved route
     },
     ...mapMutations('users', [
       'setCurrentUser'

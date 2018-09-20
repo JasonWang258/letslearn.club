@@ -183,6 +183,7 @@ export default {
         this.fetchUserProfile()
         this.performingRequest = false
         this.accountCreateSuccess = true
+        // go back to saved route
         // this.$router.push('/user/setting')
       } catch (err) {
         this.performingRequest = false

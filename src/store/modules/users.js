@@ -1,4 +1,4 @@
-import { auth, usersCollection, postsCollection, commentsCollection } from '@/firebaseConfig'
+import { usersCollection, postsCollection, commentsCollection } from '@/firebaseConfig'
 
 const state = {
   currentUser: null,
@@ -6,9 +6,6 @@ const state = {
 }
 
 const getters = {
-  currentUserz: (state) => {
-    return auth.currentUser
-  }
 }
 
 const mutations = {

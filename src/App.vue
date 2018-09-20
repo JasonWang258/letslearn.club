@@ -113,7 +113,7 @@
 </template>
 
 <script>
-import { mapState, mapGetters, mapMutations } from 'vuex'
+import { mapState, mapMutations } from 'vuex'
 import { auth } from '@/firebaseConfig'
 export default {
   name: 'App',
@@ -131,7 +131,7 @@ export default {
         link: '/user/setting'
       }],
       miniVariant: false,
-      title: 'letslearn.club'
+      title: ''
     }
   },
   computed: {
@@ -139,9 +139,6 @@ export default {
       isDarkTheme: state => state.isDarkTheme,
       currentUser: state => state.users.currentUser,
       userProfile: state => state.users.userProfile
-    }),
-    ...mapGetters({
-      currentUserz: 'users/currentUserz'
     })
   },
   methods: {
@@ -164,7 +161,6 @@ export default {
     }
   },
   mounted () {
-    console.log('z: ', this.currentUserz)
   }
 }
 </script>

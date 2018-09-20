@@ -1,5 +1,5 @@
 // import firebase from 'firebase/app'
-import { postsCollection } from '@/firebaseConfig'
+import { postsCollection, commentsCollection } from '@/firebaseConfig'
 
 const state = {
   posts: [],
@@ -28,6 +28,13 @@ const mutations = {
     } else {
       state.hiddenPosts = []
     }
+  },
+  setComments (state, val) {
+    if (val) {
+      state.comments = val
+    } else {
+      state.comments = []
+    }
   }
 }
 
@@ -44,8 +51,11 @@ const mutations = {
 // postID
 // content
 // fromUid
+// fromNickname
+// fromAvator
 // createdOn
 // modifiedOn
+// modifiedBy
 // fromDevice
 // atUid
 // atNickname
@@ -59,8 +69,7 @@ const mutations = {
 
 const actions = {
   async createPost ({ commit, state, rootState }, data) {
-    console.log(rootState.isDarkTheme)
-    let post = await postsCollection.add({
+    await postsCollection.add({
       subject: data.subject,
       content: data.content,
       authorUid: data.uid,
@@ -68,16 +77,23 @@ const actions = {
       createdOn: data.createdOn,
       likes: []
     })
-    console.log(post)
   },
-  async getPost ({ commit, state, rootState }, data) {
-    console.log(data)
+  async updatePostLikes ({ commit, state, rootState }, data) {
+    await postsCollection.doc(data.id).update({
+      'likes': data.likes
+    })
   },
-  async getPosts ({ commit, state, rootState }, data) {
-    console.log(data)
-  },
-  async getComments ({ commit, state, rootState }, data) {
-    console.log(data)
+  async createComment ({ commit, state, rootState }, data) {
+    await commentsCollection.add({
+      postID: data.postID,
+      content: data.content,
+      fromUid: data.fromUid,
+      fromNickname: data.fromNickname,
+      createdOn: data.createdOn,
+      fromMobileDevice: data.fromMobileDevice,
+      replyToID: data.replyToID,
+      likes: []
+    })
   }
 }
 

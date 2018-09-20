@@ -25,6 +25,8 @@ import {
   VSelect,
   VChip,
   VBadge,
+  VImg,
+  VHover,
   transitions
 } from 'vuetify'
 import 'vuetify/src/stylus/app.styl'
@@ -54,6 +56,8 @@ Vue.use(Vuetify, {
     VSelect,
     VChip,
     VBadge,
+    VImg,
+    VHover,
     transitions
   },
   theme: {

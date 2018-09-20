@@ -1,28 +1,54 @@
 <template>
   <v-container fluid>
     <v-slide-y-transition mode="out-in">
-      <v-layout column align-center>
-        <p>{{ posts }}</p>
-        <p>{{ hiddenPosts }}</p>
-        <p>{{ comments }}</p>
-        <div v-if="posts.length">
-          <div v-for="post in posts" :key="post.id" class="post">
-              <h5>{{ post.authorNickname }}</h5>
-              <span>{{ post.createdOn | formatDate }}</span>
-              <p>{{ post.content | trimLength }}</p>
-              <ul>
-                  <li><a>likes {{ post.likes }}</a></li>
-                  <li><a>view full post</a></li>
-              </ul>
+      <v-layout row wrap align-center justify-center>
+        <transition name="fade">
+          <div v-if="hiddenPosts.length" @click="showNewPosts" class="hidden-posts">
+            <p>
+              Click to show <span class="new-posts">{{ hiddenPosts.length }}</span>
+              new <span v-if="hiddenPosts.length > 1">posts</span><span v-else>post</span>
+            </p>
           </div>
-        </div>
-        <div v-else>
-            <p class="no-results">There are currently no posts</p>
+        </transition>
+        <v-flex xs12 sm10 lg8 xl6 v-for="post in posts" :key="post.id">
+          <v-hover>
+            <v-card
+              slot-scope="{ hover }"
+              :class="`elevation-${hover ? 12 : 2}`">
+              <v-img
+                class="white--text"
+                height="200px"
+                src="https://cdn.vuetifyjs.com/images/cards/docks.jpg"
+              >
+                <v-container fill-height fluid>
+                  <v-layout fill-height>
+                    <v-flex xs12 align-end flexbox>
+                      <span class="headline">{{ post.subject }}</span>
+                    </v-flex>
+                  </v-layout>
+                </v-container>
+              </v-img>
+              <v-card-title>
+                <div>
+                  <span class="grey--text">{{ post.authorNickname }} {{ post.createdOn | formatDate }}</span><br>
+                  <p>{{ post.content | trimLength }}</p>
+                </div>
+              </v-card-title>
+              <v-card-actions>
+                <v-spacer></v-spacer>
+                <v-btn flat color="orange">likes {{ post.likes.length }}</v-btn>
+                <v-btn flat color="orange" @click="viewPost(post.id)">Read More...</v-btn>
+              </v-card-actions>
+            </v-card>
+          </v-hover>
+        </v-flex>
+        <div v-if="!posts.length">
+            <p class="no-results">Loading... Please wait</p>
         </div>
         <transition name="fade">
           <div v-if="hiddenPosts.length" @click="showNewPosts" class="hidden-posts">
             <p>
-              Click to show <span class="new-posts">{{ hiddenPosts.length }}</span> 
+              Click to show <span class="new-posts">{{ hiddenPosts.length }}</span>
               new <span v-if="hiddenPosts.length > 1">posts</span><span v-else>post</span>
             </p>
           </div>
@@ -33,8 +59,10 @@
 </template>
 
 <script>
-import moment from 'moment'
-import { mapState, mapGetters } from 'vuex'
+import dayjs from 'dayjs'
+import relativeTime from 'dayjs/plugin/relativeTime'
+import { mapState } from 'vuex'
+dayjs.extend(relativeTime)
 export default {
   data () {
     return {
@@ -54,15 +82,18 @@ export default {
       // clear hiddenPosts array and update posts array
       this.$store.commit('setHiddenPosts', null)
       this.$store.commit('setPosts', updatedPostsArray)
+    },
+    viewPost (id) {
+      this.$router.push(`/p/${id}`)
     }
   },
   filters: {
-    formatDate(val) {
+    formatDate (val) {
       if (!val) { return '-' }
       let date = val.toDate()
-      return moment(date).fromNow()
+      return dayjs(date).fromNow()
     },
-    trimLength(val) {
+    trimLength (val) {
       if (val.length < 200) {
         return val
       }
