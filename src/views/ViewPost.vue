@@ -91,10 +91,10 @@
                         avatar
                       >
                         <v-list-tile-avatar>
-                          <img :src="item.fromAvator">
+                          <img :src="item.fromAvatar || defaultAvatar">
                         </v-list-tile-avatar>
                         <v-list-tile-content>
-                          <v-list-tile-title v-text="item.fromNickname"></v-list-tile-title>
+                          <v-list-tile-title><span v-text="item.fromNickname"></span>&nbsp;<span class="grey--text">said:</span></v-list-tile-title>
                           <v-list-tile-sub-title><pre v-text="item.content"></pre></v-list-tile-sub-title>
                         </v-list-tile-content>
                         <v-list-tile-action>
@@ -129,6 +129,7 @@ export default {
   props: ['post_id'],
   data () {
     return {
+      defaultAvatar: require('@/assets/default_avatar.svg'),
       currentPost: {
         subject: '',
         content: '',
@@ -143,7 +144,7 @@ export default {
         content: 'test comment',
         fromUid: 'DXcwDoaOgkWU86q8r8loVf4k5B02',
         fromNickname: 'testUser',
-        fromAvator: 'dsf',
+        fromAvatar: 'dsf',
         createdOn: '',
         modifiedOn: '',
         fromDevice: '',

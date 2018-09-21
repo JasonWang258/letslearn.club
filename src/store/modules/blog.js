@@ -40,19 +40,25 @@ const mutations = {
 
 // -- posts --
 // subject
+// img
 // content
 // authorUid
 // authorNickname
+// authorAvatar
 // createdOn
 // modifiedOn
+// tags
 // likes
+// commentsQty
+// ratings
+// views
 
 // -- comments --
 // postID
 // content
 // fromUid
 // fromNickname
-// fromAvator
+// fromAvatar
 // createdOn
 // modifiedOn
 // modifiedBy

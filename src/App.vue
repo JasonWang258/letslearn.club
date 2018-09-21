@@ -166,6 +166,9 @@ export default {
 </script>
 
 <style>
+html, body, .application {
+  font-family: "lucida grande", "lucida sans unicode", lucida, helvetica, "Hiragino Sans GB", "MicrosoftYaHei", "WenQuanYi Micro Hei", sans-serif;
+}
 @media print {
   @page {
     margin: 0;

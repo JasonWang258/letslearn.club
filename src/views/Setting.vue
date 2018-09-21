@@ -51,7 +51,7 @@ export default {
     return {
       showPassword: false,
       userProfile: [{
-        title: 'avator',
+        title: 'avatar',
         value: 'abc'
       },
       {
