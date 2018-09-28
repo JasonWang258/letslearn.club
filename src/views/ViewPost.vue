@@ -26,12 +26,19 @@
                     <v-layout row wrap>
                       <v-flex d-flex>
                         <v-card-title primary-title>
-                          <div class="headline">
+                          <v-layout row class="headline">
                             <v-avatar size="48px" color="orange">
                               <v-icon>business</v-icon>
                             </v-avatar>
-                            <span class="ml-4" v-text="currentPost.subject"></span>
-                          </div>
+                            <span class="ml-4" v-text="currentPost.subject" v-show="!allowEdit"></span>
+                            <v-text-field
+                              label="Subject"
+                              placeholder="put your subjet here..."
+                              v-model="currentPost.subject"
+                              v-show="allowEdit"
+                              class="ml-4"
+                            ></v-text-field>
+                          </v-layout>
                         </v-card-title>
                       </v-flex>
                     </v-layout>
@@ -43,14 +50,14 @@
                         <v-layout row justify-end>
                           <v-badge color="red" overlap>
                             <span slot="badge">{{postLikesQty}}</span>
-                            <v-btn icon>
-                              <v-icon large color="red" @click="addLike">favorite</v-icon>
+                            <v-btn icon @click="addLike">
+                              <v-icon large color="red">favorite</v-icon>
                             </v-btn>
                           </v-badge>
-                          <v-btn icon>
+                          <v-btn icon @click="addToBookmark">
                             <v-icon large>bookmark</v-icon>
                           </v-btn>
-                          <v-btn icon>
+                          <v-btn icon @click="showShareDialog=true">
                             <v-icon large>share</v-icon>
                           </v-btn>
                         </v-layout>
@@ -71,7 +78,7 @@
                   </v-card>
                 </v-flex>
                 <v-flex v-if="!isNewPost">
-                  <span v-html="$t('message.commentsHeader', { qty: commentsQty })">Comments (x)</span>
+                  <span v-html="$t('message.commentsHeader', { count: commentsQty })"></span>
                   <v-divider class="mb-3"></v-divider>
                   <v-textarea
                     v-model="newComment"
@@ -110,6 +117,7 @@
         </v-card>
       </v-flex>
     </v-layout>
+    <share-dialog :url="currentUrl" v-model="showShareDialog"></share-dialog>
   </v-container>
 </template>
 
@@ -121,14 +129,21 @@ import 'medium-editor/dist/css/medium-editor.min.css'
 import 'medium-editor/dist/css/themes/tim.min.css'
 import extensions from '@/plugins/mediumEditor/extension'
 import 'prismjs/themes/prism-okaidia.css'
+import filters from '@/filters'
+import ShareDialog from '@/components/ShareDialog'
+
 export default {
+  mixins: [filters],
   name: 'ViewPost',
   components: {
-    'medium-editor': editor
+    'medium-editor': editor,
+    'ShareDialog': ShareDialog
   },
   props: ['post_id'],
   data () {
     return {
+      currentUrl: window.location.href,
+      showShareDialog: false,
       defaultAvatar: require('@/assets/default_avatar.svg'),
       currentPost: {
         subject: '',
@@ -267,6 +282,13 @@ export default {
       return
     }
     this.getPost()
+    // views + 1
+    if (this.currentPost.id) {
+      this.$store.dispatch('blog/addViews', {
+        'postID': this.currentPost.id,
+        'numberViews': this.currentPost.numberViews ? this.currentPost.numberViews + 1 : 1
+      })
+    }
     this.getComments()
   },
   methods: {
@@ -304,6 +326,22 @@ export default {
         likes: this.currentPost.likes
       })
     },
+    addToBookmark () {
+      if (window.sidebar && window.sidebar.addPanel) { // Mozilla Firefox Bookmark
+        window.sidebar.addPanel(document.title, window.location.href, '')
+      } else if (window.external && ('AddFavorite' in window.external)) { // IE Favorite
+        window.external.AddFavorite(location.href, document.title)
+      } else if (window.opera && window.print) { // Opera Hotlist
+        this.title = document.title
+        return true
+      } else { // webkit - safari/chrome
+        let message = 'To bookmark this page, please press ' + (navigator.userAgent.toLowerCase().indexOf('mac') !== -1 ? 'Command/Cmd' : 'CTRL') + ' + D'
+        this.$store.dispatch('showSnackbar', {
+          message: message,
+          color: 'warning'
+        })
+      }
+    },
     getPost () {
       let post = this.posts.filter(item => {
         return item.id === this.post_id
@@ -326,7 +364,8 @@ export default {
         fromNickname: this.userProfile.nickname,
         createdOn: new Date(),
         fromMobileDevice: isMobile,
-        replyToID: replyToID // if null -> comment else -> reply
+        replyToID: replyToID, // if null -> comment else -> reply
+        numberComments: this.currentPost.numberComments ? this.currentPost.numberComments + 1 : 1
       })
       this.newComment = ''
     },

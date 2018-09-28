@@ -28,6 +28,7 @@ import {
   VImg,
   VHover,
   VRating,
+  VDialog,
   transitions
 } from 'vuetify'
 import 'vuetify/src/stylus/app.styl'
@@ -60,6 +61,7 @@ Vue.use(Vuetify, {
     VImg,
     VHover,
     VRating,
+    VDialog,
     transitions
   },
   theme: {

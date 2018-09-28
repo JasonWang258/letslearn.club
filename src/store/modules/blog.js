@@ -1,5 +1,5 @@
 // import firebase from 'firebase/app'
-import { postsCollection, commentsCollection } from '@/firebaseConfig'
+import { db, postsCollection, commentsCollection } from '@/firebaseConfig'
 
 const state = {
   posts: [],
@@ -50,8 +50,11 @@ const mutations = {
 // tags
 // likes
 // commentsQty
+// averageRating
+// numberRatings
 // ratings
-// views
+// numberViews
+// numberComments
 
 // -- comments --
 // postID
@@ -99,6 +102,38 @@ const actions = {
       fromMobileDevice: data.fromMobileDevice,
       replyToID: data.replyToID,
       likes: []
+    })
+    postsCollection.doc(data.postID).update({
+      'numberComments': data.numberComments
+    })
+  },
+  async addRating ({ commit, state, dispatch, rootState }, data) {
+    let postDocument = postsCollection.doc(data.postID)
+    let currentUserRating = postDocument.collection('ratings').doc(rootState.users.currentUser.uid)
+    let currentUserRatingSnapshot = await currentUserRating.get()
+    if (currentUserRatingSnapshot.exists) {
+      dispatch('showSnackbar', {
+        message: 'We\'ve got your rating already.',
+        color: 'warning'
+      }, { root: true })
+      return 'rating exists'
+    }
+    await currentUserRating.set(data.rating)
+    db.runTransaction(async function (transaction) {
+      let postDoc = await transaction.get(postDocument)
+      let postDocData = postDoc.data()
+      let newAverage = ((postDocData.numberRatings || 0) *
+                       (postDocData.averageRating || 0) + data.rating.value) /
+                       ((postDocData.numberRatings || 0) + 1)
+      return transaction.update(postDocument, {
+        numberRatings: (postDocData.numberRatings || 0) + 1,
+        averageRating: newAverage
+      })
+    })
+  },
+  addViews ({commit, state, rootState}, data) {
+    postsCollection.doc(data.postID).update({
+      'numberViews': data.numberViews
     })
   }
 }

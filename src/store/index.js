@@ -11,7 +11,8 @@ const store = new Vuex.Store({
   state: {
     isDarkTheme: false,
     errorMsg: '',
-    showMessage: false
+    showMessage: false,
+    messageColor: 'error'
   },
   mutations: mutations,
   actions: actions,

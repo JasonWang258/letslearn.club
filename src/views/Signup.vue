@@ -103,21 +103,6 @@
         </div>
       </v-card-actions>
     </v-card>
-    <v-snackbar
-      v-model="showMessage"
-      color="error"
-      :timeout="6000"
-      vertical
-    >
-      {{ errorMsg }}
-      <v-btn
-        dark
-        flat
-        @click="showMessage = false"
-      >
-        Close
-      </v-btn>
-    </v-snackbar>
   </div>
 </template>
 
@@ -181,15 +166,17 @@ export default {
           roles: { user: false }
         })
         this.fetchUserProfile()
-        this.performingRequest = false
         this.accountCreateSuccess = true
         // go back to saved route
         // this.$router.push('/user/setting')
       } catch (err) {
-        this.performingRequest = false
         console.log(err)
-        this.errorMsg = err.message
-        this.showMessage = true
+        this.$store.dispatch('showSnackbar', {
+          message: err.message,
+          color: 'error'
+        })
+      } finally {
+        this.performingRequest = false
       }
     },
     ...mapMutations('users', [

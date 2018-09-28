@@ -48,21 +48,6 @@
           Back to Login
         </v-btn>
       </div>
-      <v-snackbar
-        v-model="showMessage"
-        color="error"
-        :timeout="6000"
-        vertical
-      >
-        {{ errorMsg }}
-        <v-btn
-          dark
-          flat
-          @click="showMessage = false"
-        >
-          Close
-        </v-btn>
-      </v-snackbar>
     </v-card-text>
   </v-card>
 </template>
@@ -108,8 +93,10 @@ export default {
         this.email = ''
       } catch (err) {
         console.log(err)
-        this.errorMsg = err.message
-        this.showMessage = true
+        this.$store.dispatch('showSnackbar', {
+          message: err.message,
+          color: 'error'
+        })
       } finally {
         this.performingRequest = false
       }

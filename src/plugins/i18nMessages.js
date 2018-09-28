@@ -1,5 +1,5 @@
 export default {
-  en: {
+  'en': {
     $vuetify: {
       dataIterator: {
         rowsPerPageText: 'Items per page:',
@@ -15,11 +15,15 @@ export default {
       noDataText: 'No data available'
     },
     message: {
-      commentsHeader: 'comments ({qty})',
-      hello: 'hello2'
+      commentsHeader: 'comments ({count})',
+      views: 'no views | 1 view | {count} views',
+      comments: 'no comments | 1 comment | {count} comments',
+      likes: 'no likes | 1 like | {count} likes',
+      rating: 'Rating',
+      readMore: 'READ MORE'
     }
   },
-  zhHans: {
+  'zh-cn': {
     $vuetify: {
       dataIterator: {
         rowsPerPageText: '每页记录数：',
@@ -35,8 +39,12 @@ export default {
       noDataText: '无可用数据'
     },
     message: {
-      commentsHeader: '评论({qty})',
-      hello: '你好2'
+      commentsHeader: '评论({count})',
+      views: '{count}次浏览',
+      comments: '{count}个评论',
+      likes: '{count}个赞',
+      rating: '评分',
+      readMore: '阅读全文'
     }
   }
 }

@@ -105,6 +105,22 @@
         <router-view />
       </transition>
     </v-content>
+    <v-snackbar
+      v-model="showMessage"
+      :color="messageColor"
+      top
+      :timeout="6000"
+      vertical
+    >
+      {{ errorMsg }}
+      <v-btn
+        dark
+        flat
+        @click="showMessage = false"
+      >
+        Close
+      </v-btn>
+    </v-snackbar>
     <v-footer :fixed="fixed" app>
       <v-spacer></v-spacer>
       <span class="mr-3">&copy; 2017</span>
@@ -138,8 +154,25 @@ export default {
     ...mapState({
       isDarkTheme: state => state.isDarkTheme,
       currentUser: state => state.users.currentUser,
-      userProfile: state => state.users.userProfile
-    })
+      userProfile: state => state.users.userProfile,
+      messageColor: state => state.messageColor
+    }),
+    showMessage: {
+      get () {
+        return this.$store.state.showMessage
+      },
+      set (value) {
+        this.$store.commit('setShowMsg', value)
+      }
+    },
+    errorMsg: {
+      get () {
+        return this.$store.state.errorMsg
+      },
+      set (value) {
+        this.$store.commit('setErrorMsg', value)
+      }
+    }
   },
   methods: {
     ...mapMutations([
@@ -147,8 +180,8 @@ export default {
     ]),
     toggleLocale () {
       console.log('language')
-      // this.$vuetify.lang.current = this.$vuetify.lang.current === 'en' ? 'zhHans' : 'en'
-      this.$i18n.locale = this.$i18n.locale === 'en' ? 'zhHans' : 'en'
+      // this.$vuetify.lang.current = this.$vuetify.lang.current === 'en' ? 'zh-cn' : 'en'
+      this.$i18n.locale = this.$i18n.locale === 'en' ? 'zh-cn' : 'en'
     },
     async logout () {
       try {

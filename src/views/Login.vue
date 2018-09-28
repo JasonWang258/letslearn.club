@@ -133,21 +133,6 @@
         </v-layout>
       </v-form>
     </v-card-text>
-    <v-snackbar
-      v-model="showMessage"
-      color="error"
-      :timeout="6000"
-      vertical
-    >
-      {{ errorMsg }}
-      <v-btn
-        dark
-        flat
-        @click="showMessage = false"
-      >
-        Close
-      </v-btn>
-    </v-snackbar>
     <v-divider></v-divider>
       <div class="text-xs-center pa-2 v-label">
         Not a memeber? <router-link to="/user/signup">Sign up now</router-link>
@@ -185,8 +170,6 @@ export default {
       showPassword: true,
       performingRequest: false,
       performingRequestSendCode: false,
-      // showMessage: false,
-      // errorMsg: '',
       confirmationResult: null,
       countryCode: {
         name: 'Canada',
@@ -241,23 +224,7 @@ export default {
     },
     ...mapState([
       'isDarkTheme'
-    ]),
-    showMessage: {
-      get () {
-        return this.$store.state.showMessage
-      },
-      set (value) {
-        this.$store.commit('setShowMessage', value)
-      }
-    },
-    errorMsg: {
-      get () {
-        return this.$store.state.errorMsg
-      },
-      set (value) {
-        this.$store.commit('setErrorMsg', value)
-      }
-    }
+    ])
   },
   mounted () {
   },
@@ -290,12 +257,14 @@ export default {
         })
         let confirmationResult = await auth.signInWithPhoneNumber(this.phoneNumber, this.recaptchaVerifier)
         this.confirmationResult = confirmationResult
-        this.performingRequestSendCode = false
       } catch (err) {
-        this.performingRequestSendCode = false
-        this.errorMsg = err.message
-        this.showMessage = true
+        this.$store.dispatch('showSnackbar', {
+          message: err.message,
+          color: 'error'
+        })
         console.log(err)
+      } finally {
+        this.performingRequestSendCode = false
       }
     },
     async loginViaPhone () {
@@ -320,11 +289,13 @@ export default {
         }
         this.fetchUserProfile()
         this.$router.push('/user/setting')
-        this.performingRequest = false
       } catch (err) {
+        this.$store.dispatch('showSnackbar', {
+          message: err.message,
+          color: 'error'
+        })
+      } finally {
         this.performingRequest = false
-        this.errorMsg = err.message
-        this.showMessage = true
       }
     },
     async loginViaEmail () {
@@ -339,11 +310,13 @@ export default {
         this.setCurrentUser(result.user)
         this.fetchUserProfile()
         this.$router.push('/user/setting')
-        this.performingRequest = false
       } catch (err) {
+        this.$store.dispatch('showSnackbar', {
+          message: err.message,
+          color: 'error'
+        })
+      } finally {
         this.performingRequest = false
-        this.errorMsg = err.message
-        this.showMessage = true
       }
     },
     async loginViaGoogle () {
@@ -356,12 +329,14 @@ export default {
         this.fetchUserProfile()
         this.$router.push('/user/setting')
       } catch (err) {
-        this.errorMsg = err.message
-        this.showMessage = true
+        this.$store.dispatch('showSnackbar', {
+          message: err.message,
+          color: 'error'
+        })
       }
     },
     async loginViaFacebook () {
-      
+
     },
     login () {
       if (this.usePhoneMethod) {

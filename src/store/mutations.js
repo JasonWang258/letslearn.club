@@ -8,8 +8,11 @@ const mutations = {
   setErrorMsg (state, payload) {
     state.errorMsg = payload
   },
-  setShowMessage (state, payload) {
+  setShowMsg (state, payload) {
     state.showMessage = payload
+  },
+  setMessageColor (state, payload) {
+    state.messageColor = payload
   }
 }
 
