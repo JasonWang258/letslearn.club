@@ -27,25 +27,32 @@
                       <v-flex d-flex>
                         <v-card-title primary-title>
                           <v-layout row class="headline">
-                            <v-avatar size="48px" color="orange">
-                              <v-icon>business</v-icon>
-                            </v-avatar>
-                            <span class="ml-4" v-text="currentPost.subject" v-show="!allowEdit"></span>
+                            <div v-text="currentPost.subject" v-show="!allowEdit"></div>
                             <v-text-field
                               label="Subject"
                               placeholder="put your subjet here..."
                               v-model="currentPost.subject"
                               v-show="allowEdit"
-                              class="ml-4"
                             ></v-text-field>
                           </v-layout>
                         </v-card-title>
                       </v-flex>
                     </v-layout>
-                    <v-layout class="ml-5 pl-5" row wrap justify-space-between>
-                      <v-flex d-flex>
-                        <span v-text="'Author: ' + currentPost.authorNickname"></span>
+                    <v-layout row wrap>
+                      <v-flex d-flex >
+                        <v-layout class="body-1">
+                          <v-list-tile avatar>
+                            <v-list-tile-avatar>
+                              <img :src="currentPost.authorAvatar || defaultAvatar">
+                            </v-list-tile-avatar>
+                            <v-list-tile-content>
+                              <v-list-tile-title><span v-text="currentPost.authorNickname"></span></v-list-tile-title>
+                              <v-list-tile-sub-title>{{ currentPost.createdOn | formatDate }}</v-list-tile-sub-title>
+                            </v-list-tile-content>
+                          </v-list-tile>
+                        </v-layout>
                       </v-flex>
+                      <v-spacer></v-spacer>
                       <v-flex d-flex xs12 sm2 v-if="!isNewPost">
                         <v-layout row justify-end>
                           <v-badge color="red" overlap>
@@ -88,7 +95,7 @@
                     rows="1"
                   ></v-textarea>
                   <div class="right" style="margin-top: -20px;">
-                    <v-btn small :disabled="newComment===''" @click="createNewComment">submit</v-btn>
+                    <v-btn small :disabled="newComment===''" @click="createNewComment" v-text="$tc('message.submitComment')"></v-btn>
                   </div>
                   <v-divider class="mt-4"></v-divider>
                   <v-list two-line>
@@ -102,10 +109,20 @@
                         </v-list-tile-avatar>
                         <v-list-tile-content>
                           <v-list-tile-title><span v-text="item.fromNickname"></span>&nbsp;<span class="grey--text">said:</span></v-list-tile-title>
-                          <v-list-tile-sub-title><pre v-text="item.content"></pre></v-list-tile-sub-title>
+                          <v-list-tile-sub-title>{{ item.createdOn | formatDate }}</v-list-tile-sub-title>
+                          <pre v-text="item.content"></pre>
                         </v-list-tile-content>
                         <v-list-tile-action>
-                          <v-icon color="pink">star</v-icon>
+                          <v-layout row>
+                            <v-chip small class="mr-3 mt-3">
+                              <v-avatar class="grey"><v-btn icon><v-icon small color="grey lighten-5">mdi-thumb-up</v-icon></v-btn></v-avatar>
+                              <span v-html="$tc('message.ups', item.numberUps || 0, { count: item.numberUps })"></span>
+                            </v-chip>
+                            <v-chip small class="mt-3" @click="">
+                              <v-avatar class="grey"><v-btn icon><v-icon small color="grey lighten-5">reply</v-icon></v-btn></v-avatar>
+                              <span v-text="$tc('message.replyComment')"></span>
+                            </v-chip>
+                          </v-layout>
                         </v-list-tile-action>
                       </v-list-tile>
                     </template>
@@ -232,10 +249,10 @@ export default {
       return this.post_id === 'new'
     },
     postLikesQty () {
-      return this.currentPost.likes.length
+      return this.currentPost ? this.currentPost.likes.length : 0
     },
     commentsQty () {
-      return this.currentComments.length
+      return this.currentComments ? this.currentComments.length : 0
     },
     activeFab () {
       return this.allowEdit ? { 'color': 'pink', icon: 'save' } : { 'color': 'indigo', icon: 'edit' }
@@ -343,11 +360,11 @@ export default {
       }
     },
     getPost () {
-      let post = this.posts.filter(item => {
+      let post = this.posts.find(item => {
         return item.id === this.post_id
       })
-      if (post.length === 1) {
-        this.currentPost = post[0]
+      if (post) {
+        this.currentPost = post
       }
     },
     createNewComment (e, replyToID = '') {
