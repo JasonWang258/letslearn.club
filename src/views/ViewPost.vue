@@ -84,51 +84,55 @@
                     </v-card-text>
                   </v-card>
                 </v-flex>
-                <v-flex v-if="!isNewPost">
-                  <span v-html="$t('message.commentsHeader', { count: commentsQty })"></span>
-                  <v-divider class="mb-3"></v-divider>
-                  <v-textarea
-                    v-model="newComment"
-                    auto-grow
-                    box
-                    label="leave your comment here"
-                    rows="1"
-                  ></v-textarea>
-                  <div class="right" style="margin-top: -20px;">
-                    <v-btn small :disabled="newComment===''" @click="createNewComment" v-text="$tc('message.submitComment')"></v-btn>
-                  </div>
-                  <v-divider class="mt-4"></v-divider>
-                  <v-list two-line>
-                    <template v-for="(item, index) in currentComments">
-                      <v-list-tile
-                        :key="index"
-                        avatar
-                      >
-                        <v-list-tile-avatar>
-                          <img :src="item.fromAvatar || defaultAvatar">
-                        </v-list-tile-avatar>
-                        <v-list-tile-content>
-                          <v-list-tile-title><span v-text="item.fromNickname"></span>&nbsp;<span class="grey--text">said:</span></v-list-tile-title>
-                          <v-list-tile-sub-title>{{ item.createdOn | formatDate }}</v-list-tile-sub-title>
-                          <pre v-text="item.content"></pre>
-                        </v-list-tile-content>
-                        <v-list-tile-action>
-                          <v-layout row>
-                            <v-chip small class="mr-3 mt-3">
-                              <v-avatar class="grey"><v-btn icon><v-icon small color="grey lighten-5">mdi-thumb-up</v-icon></v-btn></v-avatar>
-                              <span v-html="$tc('message.ups', item.numberUps || 0, { count: item.numberUps })"></span>
-                            </v-chip>
-                            <v-chip small class="mt-3" @click="">
-                              <v-avatar class="grey"><v-btn icon><v-icon small color="grey lighten-5">reply</v-icon></v-btn></v-avatar>
-                              <span v-text="$tc('message.replyComment')"></span>
-                            </v-chip>
-                          </v-layout>
-                        </v-list-tile-action>
-                      </v-list-tile>
-                    </template>
-                  </v-list>
-                </v-flex>
               </v-layout>
+            </v-flex>
+          </v-layout>
+        </v-card>
+        <v-card raised class="pa-4 mt-5 post-view">
+          <v-layout row wrap>
+            <v-flex v-if="!isNewPost">
+              <span v-html="$t('message.commentsHeader', { count: commentsQty })"></span>
+              <v-divider class="mb-3"></v-divider>
+              <v-textarea
+                v-model="newComment"
+                auto-grow
+                box
+                label="leave your comment here"
+                rows="1"
+              ></v-textarea>
+              <div class="right" style="margin-top: -20px;">
+                <v-btn small :disabled="newComment===''" @click="createNewComment" v-text="$tc('message.submitComment')"></v-btn>
+              </div>
+              <v-divider class="mt-4"></v-divider>
+              <v-list two-line>
+                <template v-for="(item, index) in currentComments">
+                  <v-list-tile
+                    :key="index"
+                    avatar
+                  >
+                    <v-list-tile-avatar>
+                      <img :src="item.fromAvatar || defaultAvatar">
+                    </v-list-tile-avatar>
+                    <v-list-tile-content>
+                      <v-list-tile-title><span v-text="item.fromNickname"></span>&nbsp;<span class="grey--text">said:</span></v-list-tile-title>
+                      <v-list-tile-sub-title>{{ item.createdOn | formatDate }}</v-list-tile-sub-title>
+                      <pre v-text="item.content"></pre>
+                    </v-list-tile-content>
+                    <v-list-tile-action>
+                      <v-layout row wrap>
+                        <v-chip small class="mr-3 mt-3">
+                          <v-avatar class="grey"><v-btn icon><v-icon small color="grey lighten-5">mdi-thumb-up</v-icon></v-btn></v-avatar>
+                          <span v-html="$tc('message.ups', item.numberUps || 0, { count: item.numberUps })"></span>
+                        </v-chip>
+                        <v-chip small class="mt-3" @click="">
+                          <v-avatar class="grey"><v-btn icon><v-icon small color="grey lighten-5">reply</v-icon></v-btn></v-avatar>
+                          <span v-text="$tc('message.replyComment')"></span>
+                        </v-chip>
+                      </v-layout>
+                    </v-list-tile-action>
+                  </v-list-tile>
+                </template>
+              </v-list>
             </v-flex>
           </v-layout>
         </v-card>
