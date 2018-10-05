@@ -12,7 +12,8 @@ const store = new Vuex.Store({
     isDarkTheme: false,
     errorMsg: '',
     showMessage: false,
-    messageColor: 'error'
+    messageColor: 'error',
+    messageTimeout: 6000
   },
   mutations: mutations,
   actions: actions,

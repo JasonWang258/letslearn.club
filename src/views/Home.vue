@@ -17,13 +17,13 @@
               :class="`elevation-${hover ? 5 : 1}`">
               <v-img
                 :class="post.img ? 'white--text' : ''"
-                :height="post.img ? '200px' : 'auto'"
+                :height="post.img ? '300px' : 'auto'"
                 :src="post.img"
               >
-                <v-container fill-height fluid :class="post.img ? '' : 'pb-0'">
+                <v-container fill-height fluid class="pa-0">
                   <v-layout fill-height align-end>
                     <v-flex xs12>
-                      <v-layout row wrap>
+                      <v-layout row wrap :class="post.img ? 'shadow-mask pt-3' : 'px-3'">
                         <v-list-tile-avatar>
                           <img :src="post.authorAvatar || defaultAvatar">
                         </v-list-tile-avatar>
@@ -32,20 +32,20 @@
                           <span class="grey--text">{{ post.createdOn | formatDate }}</span>
                         </v-flex>
                         <v-spacer></v-spacer>
-                        <div>
-                          <v-chip small class="mr-3" v-if="post.numberViews">
-                            <v-avatar class="grey lighten-1"><v-icon small color="grey lighten-5">mdi-eye</v-icon></v-avatar>
-                            <span v-html="$tc('message.views', post.numberViews, { count: post.numberViews })"></span>
+                        <v-layout row align-end justify-end>
+                          <v-chip small color="grey darken-1" class="mr-3" v-if="post.numberViews">
+                            <v-avatar class="grey darken-2"><v-icon small color="grey lighten-2">mdi-eye</v-icon></v-avatar>
+                            <span class="white--text" v-html="$tc('message.views', post.numberViews, { count: post.numberViews })"></span>
                           </v-chip>
-                          <v-chip small class="mr-3" v-if="post.numberComments">
-                            <v-avatar class="grey lighten-1"><v-icon small color="grey lighten-5">mdi-comment-text</v-icon></v-avatar>
-                            <span v-html="$tc('message.comments', post.numberComments, { count: post.numberComments })"></span>
+                          <v-chip small color="grey darken-1" class="mr-3" v-if="post.numberComments">
+                            <v-avatar class="grey darken-2"><v-icon small color="grey lighten-2">mdi-comment-text</v-icon></v-avatar>
+                            <span class="white--text" v-html="$tc('message.comments', post.numberComments, { count: post.numberComments })"></span>
                           </v-chip>
-                          <v-chip small class="mr-3" v-if="post.likes.length">
-                            <v-avatar class="grey lighten-1"><v-icon small color="grey lighten-5">favorite</v-icon></v-avatar>
-                            <span v-html="$tc('message.likes', post.likes.length, { count: post.likes.length })"></span>
+                          <v-chip small color="grey darken-1" v-if="post.likes.length">
+                            <v-avatar class="grey darken-2"><v-icon small color="grey lighten-2">favorite</v-icon></v-avatar>
+                            <span class="white--text" v-html="$tc('message.likes', post.likes.length, { count: post.likes.length })"></span>
                           </v-chip>
-                        </div>
+                        </v-layout>
                       </v-layout>
                     </v-flex>
                   </v-layout>
@@ -126,7 +126,8 @@ export default {
   mixins: [filters],
   data () {
     return {
-      defaultAvatar: require('@/assets/default_avatar.svg'),
+      // defaultAvatar: require('@/assets/default_avatar.svg'),
+      defaultAvatar: 'https://www.gravatar.com/avatar/00000000000?d=mp&r=g',
       currentLoading: '',
       readonlyList: {}
     }
@@ -150,6 +151,7 @@ export default {
       this.$router.push(`/p/${id}`)
     },
     async updateRating (postID, index) {
+      console.log(this.currentUser)
       if (!this.currentUser) {
         this.$router.push('user/login')
         return
@@ -172,7 +174,7 @@ export default {
 </script>
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
-<style scoped>
+<style>
 .v-chip .v-avatar {
     height: 24px !important;
     margin-left: -12px;

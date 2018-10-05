@@ -35,7 +35,7 @@ export default {
   name: 'ShareDialog',
   model: {
     prop: 'value',
-    event: 'close'
+    event: 'change'
   },
   props: {
     url: String,
@@ -52,9 +52,7 @@ export default {
         return this.value
       },
       set (value) {
-        if (!value) {
-          this.$emit('close', false)
-        }
+        this.$emit('change', value)
       }
     }
   },

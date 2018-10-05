@@ -13,6 +13,9 @@ const mutations = {
   },
   setMessageColor (state, payload) {
     state.messageColor = payload
+  },
+  setMessageTimeout (state, payload) {
+    state.messageTimeout = payload
   }
 }
 

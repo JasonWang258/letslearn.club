@@ -109,7 +109,7 @@
       v-model="showMessage"
       :color="messageColor"
       top
-      :timeout="6000"
+      :timeout="messageTimeout"
       vertical
     >
       {{ errorMsg }}
@@ -155,7 +155,8 @@ export default {
       isDarkTheme: state => state.isDarkTheme,
       currentUser: state => state.users.currentUser,
       userProfile: state => state.users.userProfile,
-      messageColor: state => state.messageColor
+      messageColor: state => state.messageColor,
+      messageTimeout: state => state.messageTimeout
     }),
     showMessage: {
       get () {
@@ -236,5 +237,9 @@ html, body, .application {
     visibility: hidden;
     display: none;
   }
+}
+.shadow-mask {
+  padding: 0 20px 20px 20px;
+  background: rgba(0, 0, 0, 0.45)
 }
 </style>

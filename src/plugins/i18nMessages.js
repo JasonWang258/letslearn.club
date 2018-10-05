@@ -22,7 +22,7 @@ export default {
       rating: 'Rating',
       readMore: 'READ MORE',
       ups: '0 | 1 thumb up |{count} thumb ups',
-      replyComment: 'Reply to this comment',
+      replyComment: 'Reply',
       submitComment: 'Submit'
     }
   },
@@ -45,11 +45,11 @@ export default {
       commentsHeader: '评论({count})',
       views: '{count}次浏览',
       comments: '{count}个评论',
-      likes: '{count}个人觉得不错',
+      likes: '{count}个赞',
       rating: '评分',
       readMore: '阅读全文',
       ups: '0 | 1个赞 |{count}个赞',
-      replyComment: '回复此评论',
+      replyComment: '回复',
       submitComment: '提交'
     }
   }

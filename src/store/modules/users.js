@@ -1,8 +1,9 @@
-import { usersCollection, postsCollection, commentsCollection } from '@/firebaseConfig'
+import { usersCollection, postsCollection } from '@/firebaseConfig'
+// import md5 from 'md5'
 
 const state = {
   currentUser: null,
-  userProfile: []
+  userProfile: {}
 }
 
 const getters = {
@@ -21,6 +22,7 @@ const actions = {
   clearData ({ commit }) {
     commit('setCurrentUser', null)
     commit('setUserProfile', {})
+    commit('setDefaultAvatar', '')
   },
   async fetchUserProfile ({ commit, state }) {
     try {
@@ -33,22 +35,23 @@ const actions = {
     }
   },
   async updateProfile ({ commit, state }, data) {
-    let name = data.name
+    let nickname = data.name
     let title = data.title
     try {
-      await usersCollection.doc(state.currentUser.uid).update({ name, title })
-      // update all posts by user to reflect new name
-      let docs = postsCollection.where('userId', '==', state.currentUser.uid).get()
-      docs.forEach(doc => {
-        postsCollection.doc(doc.id).update({
-          userName: name
-        })
-      })
-      // update all comments by user to reflect new name
-      let commentsDocs = await commentsCollection.where('userId', '==', state.currentUser.uid).get()
-      commentsDocs.forEach(doc => {
-        commentsCollection.doc(doc.id).update({
-          userName: name
+      await usersCollection.doc(state.currentUser.uid).update({ nickname, title })
+      // update all posts and comments to reflect new name
+      let docs = await postsCollection.get()
+      docs.forEach(async doc => {
+        if (doc.authorUid === state.currentUser.uid) {
+          doc.update({
+            authorNickname: nickname
+          })
+        }
+        let comments = await doc.collection('comments').where('fromUid', '==', state.currentUser.uid).get()
+        comments.forEach(comment => {
+          comment.update({
+            fromNickname: nickname
+          })
         })
       })
     } catch (err) {

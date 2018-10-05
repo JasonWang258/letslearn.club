@@ -107,6 +107,7 @@
 </template>
 
 <script>
+import md5 from 'md5'
 import firebase from 'firebase/app'
 import { mapState, mapMutations, mapActions } from 'vuex'
 import { auth, usersCollection } from '@/firebaseConfig'
@@ -163,7 +164,8 @@ export default {
         // create user obj
         await usersCollection.doc(result.user.uid).set({
           nickname: this.Nickname || 'guest_' + result.user.uid.slice(-5),
-          roles: { user: false }
+          roles: { user: false },
+          avatar: 'https://www.gravatar.com/avatar/' + md5(this.email.toLowerCase().trim()) + '?d=mp&r=g'
         })
         this.fetchUserProfile()
         this.accountCreateSuccess = true

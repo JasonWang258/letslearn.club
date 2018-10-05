@@ -1,10 +1,12 @@
 // import firebase from 'firebase/app'
-import { db, postsCollection, commentsCollection } from '@/firebaseConfig'
+import Vue from 'vue'
+import { db, storage, postsCollection } from '@/firebaseConfig'
 
 const state = {
   posts: [],
   hiddenPosts: [],
-  comments: []
+  comments: [],
+  fileUploaded: {}
 }
 
 const getters = {
@@ -35,6 +37,13 @@ const mutations = {
     } else {
       state.comments = []
     }
+  },
+  setFileUploaded (state, val) {
+    if (val) {
+      state.fileUploaded = {...state.fileUploaded, ...val}
+    } else {
+      state.fileUploaded = {}
+    }
   }
 }
 
@@ -57,7 +66,6 @@ const mutations = {
 // numberComments
 
 // -- comments --
-// postID
 // content
 // fromUid
 // fromNickname
@@ -68,12 +76,13 @@ const mutations = {
 // fromDevice
 // atUid
 // atNickname
-// replyToID // if null -> comment else -> reply
+// replyToID // if null -> comment, else -> reply
 // likes
 
 // -- users --
 // nickName
 // bookmarks
+// avatar
 // roles
 
 const actions = {
@@ -81,10 +90,19 @@ const actions = {
     await postsCollection.add({
       subject: data.subject,
       content: data.content,
+      img: data.img,
       authorUid: data.uid,
       authorNickname: data.authorNickname,
       createdOn: data.createdOn,
       likes: []
+    })
+  },
+  async updatePost ({ commit, state, rootState }, data) {
+    await postsCollection.doc(data.id).update({
+      subject: data.subject,
+      content: data.content,
+      img: data.img,
+      modifiedOn: data.modifiedOn
     })
   },
   async updatePostLikes ({ commit, state, rootState }, data) {
@@ -92,19 +110,30 @@ const actions = {
       'likes': data.likes
     })
   },
-  async createComment ({ commit, state, rootState }, data) {
-    await commentsCollection.add({
-      postID: data.postID,
+  async updateCommentLikes ({ commit, state, rootState }, data) {
+    await postsCollection.doc(data.postID).collection('comments').doc(data.id).update({
+      'likes': data.likes
+    })
+  },
+  async createComment ({ commit, state, dispatch, rootState }, data) {
+    let postDocument = postsCollection.doc(data.postID)
+    let currentComment = postDocument.collection('comments').doc()
+    await currentComment.set({
       content: data.content,
       fromUid: data.fromUid,
       fromNickname: data.fromNickname,
       createdOn: data.createdOn,
       fromMobileDevice: data.fromMobileDevice,
       replyToID: data.replyToID,
+      indent: data.indent,
       likes: []
     })
-    postsCollection.doc(data.postID).update({
-      'numberComments': data.numberComments
+    db.runTransaction(async function (transaction) {
+      let postDoc = await transaction.get(postDocument)
+      let postDocData = postDoc.data()
+      return transaction.update(postDocument, {
+        numberComments: (postDocData.numberComments || 0) + 1
+      })
     })
   },
   async addRating ({ commit, state, dispatch, rootState }, data) {
@@ -114,6 +143,7 @@ const actions = {
     if (currentUserRatingSnapshot.exists) {
       dispatch('showSnackbar', {
         message: 'We\'ve got your rating already.',
+        timeout: 3000,
         color: 'warning'
       }, { root: true })
       return 'rating exists'
@@ -135,6 +165,31 @@ const actions = {
     postsCollection.doc(data.postID).update({
       'numberViews': data.numberViews
     })
+  },
+  async uploadImage ({commit, state, rootState}, imageFile) {
+    try {
+      var imageRef = storage.ref().child('images')
+      var targetFileRef = imageRef.child(imageFile.name)
+      var uploadTask = targetFileRef.put(imageFile)
+      uploadTask.on('state_changed', function (snapshot) {
+        // Observe state change events such as progress, pause, and resume
+        // Get task progress, including the number of bytes uploaded and the total number of bytes to be uploaded
+        var progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100
+        commit('setFileUploaded', { progress: progress, state: snapshot.state })
+      }, function (error) {
+        // Handle unsuccessful uploads
+        console.log(error)
+        commit('setFileUploaded', { error: error })
+      }, function () {
+        // Handle successful uploads on complete
+        // For instance, get the download URL: https://firebasestorage.googleapis.com/...
+        uploadTask.snapshot.ref.getDownloadURL().then(function (downloadURL) {
+          commit('setFileUploaded', { downloadURL: downloadURL })
+        })
+      })
+    } catch (error) {
+      commit('setFileUploaded', { error: error })
+    }
   }
 }
 
