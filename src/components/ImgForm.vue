@@ -82,7 +82,7 @@
             class="ma-4"
             box
             v-model="imgUrl"
-            @blur="onUrlBlur"
+            @blur="onNewImage"
           ></v-text-field>
         </v-list-tile>
         <v-divider class="or-divider"></v-divider>
@@ -91,10 +91,54 @@
             color="blue-grey"
             class="white--text"
             block
+            @click.stop="openCloundImagesDialog"
           >
             Choose from uploaded images...
             <v-icon right dark>cloud_upload</v-icon>
           </v-btn>
+          <v-dialog v-model="showImgDialog" scrollable max-width="980px" full-width>
+            <v-card>
+              <v-card-title>Select Images</v-card-title>
+              <v-divider></v-divider>
+              <v-card-text style="height: 600px;">
+                 <v-container grid-list-sm fluid>
+                  <v-layout row wrap>
+                    <v-flex
+                      v-for="image in cloudImages"
+                      :key="image.path"
+                      xs4
+                      d-flex
+                    >
+                      <v-card flat tile class="d-flex">
+                        <v-img
+                          :src="image.src"
+                          aspect-ratio="1"
+                          class="grey lighten-2"
+                          @click="updateImgUrl(image.src)"
+                          style="cursor: pointer;"
+                        >
+                          <v-layout
+                            slot="placeholder"
+                            fill-height
+                            align-center
+                            justify-center
+                            ma-0
+                          >
+                            <v-progress-circular indeterminate color="grey lighten-5"></v-progress-circular>
+                          </v-layout>
+                        </v-img>
+                      </v-card>
+                    </v-flex>
+                  </v-layout>
+                </v-container>
+              </v-card-text>
+              <v-divider></v-divider>
+              <v-card-actions>
+                <v-spacer></v-spacer>
+                <v-btn color="blue darken-1" flat @click.native="showImgDialog = false">Close</v-btn>
+              </v-card-actions>
+            </v-card>
+          </v-dialog>
         </div>
       </v-list>
     </v-card>
@@ -103,6 +147,7 @@
 
 <script>
 import { mapState } from 'vuex'
+import { mediaCollection } from '@/firebaseConfig'
 export default {
   name: 'ImgForm',
   model: {
@@ -117,7 +162,9 @@ export default {
     return {
       selectedFile: null,
       uploadError: null,
-      imgUrl: this.originalImg
+      imgUrl: this.originalImg,
+      showImgDialog: false,
+      cloudImages: []
     }
   },
   computed: {
@@ -141,7 +188,7 @@ export default {
       }
       if (this.fileUploaded.progress < 100) {
         return 'saving'
-      } else if (this.fileUploaded.progress === 100) {
+      } else if (this.fileUploaded.success) {
         this.imgUrl = this.fileUploaded.downloadURL
         if (this.originalImg !== this.imgUrl) {
           this.$emit('newImage', this.imgUrl)
@@ -183,14 +230,37 @@ export default {
           color: 'warning'
         })
         this.reset()
+        event.target.value = ''
         return false
       }
       await this.$store.dispatch('blog/uploadImage', this.selectedFile)
+      event.target.value = ''
     },
-    onUrlBlur () {
+    openCloundImagesDialog () {
+      if (this.cloudImages.length === 0) {
+        this.loadImagesList()
+      }
+      this.showImgDialog = true
+    },
+    async loadImagesList () {
+      let imageSnapshot = await mediaCollection.get()
+      if (imageSnapshot.empty) {
+        return
+      }
+      imageSnapshot.docs.forEach(image => {
+        this.cloudImages.push(image.data())
+      })
+    },
+    onNewImage () {
       if (this.originalImg !== this.imgUrl) {
         this.$emit('newImage', this.imgUrl)
       }
+    },
+    updateImgUrl (url) {
+      this.imgUrl = url
+      this.showImgDialog = false
+      this.showForm = false
+      this.onNewImage()
     }
   }
 }

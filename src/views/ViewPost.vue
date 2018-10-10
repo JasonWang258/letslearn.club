@@ -1,7 +1,7 @@
 <template>
   <v-container class="pt-0">
-    <v-layout xs12 sm10 lg8 xl6>
-      <v-flex>
+    <v-layout row wrap justify-center>
+      <v-flex xs12 sm10 xl8>
         <v-card raised class="post-view">
           <div class="toolbox" v-if="allowEdit">
             <v-slide-x-reverse-transition>

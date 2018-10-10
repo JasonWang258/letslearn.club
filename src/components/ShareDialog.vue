@@ -8,11 +8,11 @@
         class="headline grey lighten-2"
         primary-title
       >
-        share
+        分享到微信朋友圈
       </v-card-title>
       <v-card-text v-html="qrcodeUrl">
       </v-card-text>
-
+      <div class="px-5">打开微信，点击底部的“发现”，使用“扫一扫”即可将网页分享至朋友圈。</div>
       <v-divider></v-divider>
 
       <v-card-actions>

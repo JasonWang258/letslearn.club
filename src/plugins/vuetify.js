@@ -31,6 +31,7 @@ import {
   VDialog,
   VBottomSheet,
   VProgressLinear,
+  VSpeedDial,
   transitions
 } from 'vuetify'
 import 'vuetify/src/stylus/app.styl'
@@ -66,6 +67,7 @@ Vue.use(Vuetify, {
     VDialog,
     VBottomSheet,
     VProgressLinear,
+    VSpeedDial,
     transitions
   },
   theme: {

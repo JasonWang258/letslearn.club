@@ -1,6 +1,5 @@
-// import firebase from 'firebase/app'
-import Vue from 'vue'
-import { db, storage, postsCollection } from '@/firebaseConfig'
+import firebase from 'firebase/app'
+import { db, storage, postsCollection, mediaCollection } from '@/firebaseConfig'
 
 const state = {
   posts: [],
@@ -93,7 +92,7 @@ const actions = {
       img: data.img,
       authorUid: data.uid,
       authorNickname: data.authorNickname,
-      createdOn: data.createdOn,
+      createdOn: firebase.firestore.FieldValue.serverTimestamp(), // data.createdOn,
       likes: []
     })
   },
@@ -102,7 +101,7 @@ const actions = {
       subject: data.subject,
       content: data.content,
       img: data.img,
-      modifiedOn: data.modifiedOn
+      modifiedOn: firebase.firestore.FieldValue.serverTimestamp() // data.modifiedOn
     })
   },
   async updatePostLikes ({ commit, state, rootState }, data) {
@@ -122,7 +121,7 @@ const actions = {
       content: data.content,
       fromUid: data.fromUid,
       fromNickname: data.fromNickname,
-      createdOn: data.createdOn,
+      createdOn: firebase.firestore.FieldValue.serverTimestamp(), // data.createdOn,
       fromMobileDevice: data.fromMobileDevice,
       replyToID: data.replyToID,
       indent: data.indent,
@@ -166,7 +165,7 @@ const actions = {
       'numberViews': data.numberViews
     })
   },
-  async uploadImage ({commit, state, rootState}, imageFile) {
+  async uploadImage ({commit, state, dispatch, rootState}, imageFile) {
     try {
       var imageRef = storage.ref().child('images')
       var targetFileRef = imageRef.child(imageFile.name)
@@ -184,12 +183,23 @@ const actions = {
         // Handle successful uploads on complete
         // For instance, get the download URL: https://firebasestorage.googleapis.com/...
         uploadTask.snapshot.ref.getDownloadURL().then(function (downloadURL) {
-          commit('setFileUploaded', { downloadURL: downloadURL })
+          commit('setFileUploaded', { downloadURL: downloadURL, success: true })
+          dispatch('updateMediaCollection', {
+            name: imageFile.name,
+            src: downloadURL,
+            path: uploadTask.snapshot.metadata.fullPath
+          })
         })
       })
     } catch (error) {
       commit('setFileUploaded', { error: error })
     }
+  },
+  async updateMediaCollection ({ commit, state, rootState }, data) {
+    await mediaCollection.doc(data.name).set({
+      src: data.src,
+      path: data.path
+    })
   }
 }
 
