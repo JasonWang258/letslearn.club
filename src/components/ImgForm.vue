@@ -189,10 +189,6 @@ export default {
       if (this.fileUploaded.progress < 100) {
         return 'saving'
       } else if (this.fileUploaded.success) {
-        this.imgUrl = this.fileUploaded.downloadURL
-        if (this.originalImg !== this.imgUrl) {
-          this.$emit('newImage', this.imgUrl)
-        }
         return 'success'
       }
       return 'initial'
@@ -208,6 +204,16 @@ export default {
     },
     isFailed () {
       return this.currentStatus === 'failed'
+    }
+  },
+  watch: {
+    fileUploaded: function (val) {
+      if (val.success) {
+        this.imgUrl = val.downloadURL
+        if (this.originalImg !== this.imgUrl) {
+          this.$emit('newImage', this.imgUrl)
+        }
+      }
     }
   },
   mounted () {

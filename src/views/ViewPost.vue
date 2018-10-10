@@ -349,7 +349,7 @@ export default {
           this.$store.dispatch('blog/createPost', {
             subject: this.currentPost.subject,
             content: htmlContent,
-            img: currentPost.img,
+            img: this.currentPost.img,
             uid: this.currentUser.uid,
             authorNickname: this.userProfile.nickname,
             createdOn: new Date()
