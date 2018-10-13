@@ -166,7 +166,7 @@ export default {
       // disable rating
       let obj = {}
       obj[postID] = true
-      this.readonlyList = {...obj, ...this.readonlyList}
+      this.readonlyList = { ...obj, ...this.readonlyList }
       this.currentLoading = ''
     }
   }

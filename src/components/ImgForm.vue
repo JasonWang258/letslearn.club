@@ -104,15 +104,28 @@
                  <v-container grid-list-sm fluid>
                   <v-layout row wrap>
                     <v-flex
-                      v-for="image in cloudImages"
-                      :key="image.path"
+                      v-for="(image, index) in cloudImages"
+                      :key="index"
                       xs4
                       d-flex
                     >
                       <v-card flat tile class="d-flex">
+                        <v-btn
+                          absolute
+                          dark
+                          fab
+                          top
+                          right
+                          small
+                          color="grey"
+                          @click="removeImage(image)"
+                        >
+                          <v-icon large>delete</v-icon>
+                        </v-btn>
                         <v-img
                           :src="image.src"
-                          aspect-ratio="1"
+                          aspect-ratio="1.5"
+                          contain
                           class="grey lighten-2"
                           @click="updateImgUrl(image.src)"
                           style="cursor: pointer;"
@@ -243,9 +256,7 @@ export default {
       event.target.value = ''
     },
     openCloundImagesDialog () {
-      if (this.cloudImages.length === 0) {
-        this.loadImagesList()
-      }
+      this.loadImagesList()
       this.showImgDialog = true
     },
     async loadImagesList () {
@@ -253,6 +264,7 @@ export default {
       if (imageSnapshot.empty) {
         return
       }
+      this.cloudImages = []
       imageSnapshot.docs.forEach(image => {
         this.cloudImages.push(image.data())
       })
@@ -267,6 +279,13 @@ export default {
       this.showImgDialog = false
       this.showForm = false
       this.onNewImage()
+    },
+    removeImage (image) {
+      let index = this.cloudImages.indexOf(image)
+      if (index >= 0) {
+        this.cloudImages.splice(index, 1)
+      }
+      this.$store.dispatch('blog/removeImage', image.path)
     }
   }
 }

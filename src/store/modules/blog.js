@@ -39,7 +39,7 @@ const mutations = {
   },
   setFileUploaded (state, val) {
     if (val) {
-      state.fileUploaded = {...state.fileUploaded, ...val}
+      state.fileUploaded = { ...state.fileUploaded, ...val }
     } else {
       state.fileUploaded = {}
     }
@@ -160,12 +160,12 @@ const actions = {
       })
     })
   },
-  addViews ({commit, state, rootState}, data) {
+  addViews ({ commit, state, rootState }, data) {
     postsCollection.doc(data.postID).update({
       'numberViews': data.numberViews
     })
   },
-  async uploadImage ({commit, state, dispatch, rootState}, imageFile) {
+  async uploadImage ({ commit, state, dispatch, rootState }, imageFile) {
     try {
       var imageRef = storage.ref().child('images')
       var targetFileRef = imageRef.child(imageFile.name)
@@ -200,6 +200,14 @@ const actions = {
       src: data.src,
       path: data.path
     })
+  },
+  async removeFormMediaCollection ({ commit, state, rootState }, data) {
+    await mediaCollection.doc(data.name).delete()
+  },
+  async removeImage ({ commit, state, dispatch, rootState }, path) {
+    var imageRef = storage.ref().child(path)
+    await imageRef.delete()
+    await dispatch('removeFormMediaCollection', { name: path.replace('images/', '') })
   }
 }
 

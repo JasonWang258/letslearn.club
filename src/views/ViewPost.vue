@@ -421,7 +421,7 @@ export default {
         return item.id === this.post_id
       })
       if (this.originalPost) {
-        this.currentPost = {...this.originalPost}
+        this.currentPost = { ...this.originalPost }
       }
     },
     showNewImg (value) {
